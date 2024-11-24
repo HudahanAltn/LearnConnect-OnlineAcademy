@@ -6,3 +6,31 @@
 //
 
 import Foundation
+import UIKit
+
+
+class AccountInfoHelper{
+  
+    func isGmail(mail:String)->Bool{
+        let range = mail.index(mail.endIndex,offsetBy:-10) ..< mail.endIndex
+        let arraySlicer = mail[range]
+        let newArray = Array(arraySlicer)
+        if newArray == FirebaseConstants.gmailCheck{
+            return true
+        }else{
+            return false
+        }
+    }
+    
+    func isPasswordSecure(sifre:String)->Bool{//regular expression temelli sifre kontrolü( özel karakter,8 karakter,bir büyük harf ve bir sayı)
+        let password = NSPredicate(format: "SELF MATCHES %@ ", "^(?=.*[a-z])(?=.*[.,$@$#!%*?&])(?=.*[0-9])(?=.*[A-Z]).{8,}$")
+        return password.evaluate(with: sifre)
+        
+    }
+    
+    func setUserLabels(tempUser:User,userNameLabel:UILabel,userPhoneLabel:UILabel){
+        userNameLabel.text = tempUser.firstName
+        userPhoneLabel.text = tempUser.phoneNumber
+    }
+
+}

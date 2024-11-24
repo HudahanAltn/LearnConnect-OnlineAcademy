@@ -10,16 +10,12 @@ import UIKit
 class ItemTableViewCell: UITableViewCell {
 
     @IBOutlet weak var itemImageView: UIImageView!
-    
-    @IBOutlet weak var itemLabel: UILabel!
-    
+    @IBOutlet weak var itemNameLabel: UILabel!
     @IBOutlet weak var itemOwnerLabel: UILabel!
-    
     @IBOutlet weak var itemPointLabel: UILabel!
-    
     @IBOutlet weak var itemPointProgressView: UIProgressView!
-    
     @IBOutlet weak var itemPriceLabel: UILabel!
+    @IBOutlet weak var itemActivityIndicator: UIActivityIndicatorView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -36,40 +32,46 @@ class ItemTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         itemImageView.image = nil
-        itemLabel.text = nil
+        itemNameLabel.text = nil
+        itemOwnerLabel.text = nil
+        itemPointLabel.text = nil
+        itemPointProgressView.progress = 0
         itemPriceLabel.text = nil
-        dealerNameLabel.text = nil
     }
 
     private func setCellUI(){
         backgroundColor = UIColor(white: 1.0, alpha: 0.7)
-        activityIndicator.hidesWhenStopped = true
-        layer.borderColor = UIColor(rgb:0xF2BD41).cgColor
-        layer.borderWidth = 0.5
-        layer.cornerRadius = 5
+        itemActivityIndicator.hidesWhenStopped = true
         accessoryType = .disclosureIndicator
         let customSelectionColor = UIView()
-        customSelectionColor.backgroundColor = UIColor(rgb:0xF2BD41)
+        customSelectionColor.backgroundColor = .systemGreen
         self.selectedBackgroundView = customSelectionColor
     }
     
     func createItemsCell(_ item:Item){
-   
-        activityIndicator.startAnimating()
+        
+        itemActivityIndicator.startAnimating()
         itemNameLabel.text = item.name
-        itemDescriptionLabel.text = item.description
         itemPriceLabel.text = LocalCurrency().convertCurrency(item.price)
         itemPriceLabel.adjustsFontSizeToFitWidth = true
-        dealerNameLabel.text = item.dealerName
+        itemOwnerLabel.text = item.dealerMail
         
-        if item.imageLinks != nil && item.imageLinks.count > 0{
-            ImageManager().downloadImages(imageUrls: item.imageLinks){
-                imagess in
-    
-                self.itemImageView.image = imagess.first as? UIImage //ilk resmi göster. commit atıldı.
-                self.activityIndicator.stopAnimating()//indirme bitince durdur.
+        if item.imageLink != nil && item.imageLink.count > 0{
+            
+            StorageManager().downloadImage(imageUrl: item.imageLink){
+                image in
+                self.itemImageView.image = image as? UIImage //ilk resmi göster. commit atıldı.
+                self.itemActivityIndicator.stopAnimating()//indirme bitince durdur.
+
             }
         }
+        
+        UserViewModel().downloadUserFromFirestore(userMail: item.dealerMail){
+            user in
+            self.itemOwnerLabel.text = user.fullName
+        }
+        
+        
     }
 
     private func setItemImageViewUI(){

@@ -10,6 +10,8 @@ import UIKit
 
 class Alert{
 
+    static let hesapGuv:String = "Mail adresiniz \"@gmail.com\" uzantılı olmalıdır.\nŞifreniz 8-15 karakter aralığında olmalıdır.Ayrıca sifreniz en az bir büyük harf, küçük harf, sayı ve .,$@$#!%*?& içermelidir"
+    
     static let noConnectionMessage = "İnternet Bağlantınızı Kontrol Ediniz!"
     static let noConnectionTitle = "Bilgilendirme"
     

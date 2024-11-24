@@ -18,10 +18,13 @@ class SubcategoryViewController: UIViewController {
    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         navigationItem.title = category!.name
         subcategoryTableView.delegate = self
         subcategoryTableView.dataSource = self
+        subcategoryTableView.separatorStyle = .none
+
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(self.turnBackToPage))
+
         setUpBinders()
         
     }
@@ -40,6 +43,12 @@ class SubcategoryViewController: UIViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == "subcategoryToItems"{
+            let itemsVC = segue.destination as! ItemsViewController
+            itemsVC.subcategory = sender as? SubCategory
+        }
+        
     }
     
     func setUpBinders(){
@@ -63,7 +72,7 @@ extension SubcategoryViewController:UITableViewDelegate{
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         tableView.deselectRow(at: indexPath, animated: true)
         if Connectivity.isInternetAvailable(){
-            performSegue(withIdentifier: "subcategoryToItems", sender: nil)
+            performSegue(withIdentifier: "subcategoryToItems", sender: subcategoryVM.subCategories[indexPath.row])
         }else{
             Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
         }
@@ -85,5 +94,13 @@ extension SubcategoryViewController:UITableViewDataSource{
         categoryCell.subcategoryNameLabel.text = subcategoryVM.subCategories[indexPath.row].name
         categoryCell.runCellAnimation()
         return categoryCell
+    }
+}
+
+
+extension SubcategoryViewController{
+    
+    @objc func turnBackToPage(){
+        self.navigationController?.popViewController(animated: true)
     }
 }

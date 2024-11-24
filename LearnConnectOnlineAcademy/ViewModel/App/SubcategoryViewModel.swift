@@ -11,7 +11,6 @@ class SubcategoryViewModel{
     
     @Published var subCategories:[SubCategory] = [SubCategory]()
     
-    //MARK: - Kategori kayıtlarını tek tek çeken fonksiyon
     
     func downloadSubCategoriesFromFirebase(withSubCategoryId:String){
         subCategories.removeAll()

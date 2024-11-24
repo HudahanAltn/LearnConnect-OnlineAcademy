@@ -9,9 +9,12 @@ import UIKit
 
 class ItemContentTableViewCell: UITableViewCell {
 
+    @IBOutlet weak var itemContentLabel: UILabel!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+
+        setCellUI()
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -20,4 +23,20 @@ class ItemContentTableViewCell: UITableViewCell {
         // Configure the view for the selected state
     }
 
+    private func setCellUI(){
+        backgroundColor = UIColor(white: 1.0, alpha: 0.7)
+        accessoryType = .disclosureIndicator
+        let customSelectionColor = UIView()
+        customSelectionColor.backgroundColor = .systemGreen
+        self.selectedBackgroundView = customSelectionColor
+        
+    }
+    
+    func createCell(itemContentName:String,itemContentCount:Int){
+        
+        for count in 1...itemContentCount{
+            itemContentLabel.text = "\(count)- \(itemContentName)"
+        }
+        
+    }
 }

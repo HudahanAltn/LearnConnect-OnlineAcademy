@@ -11,7 +11,7 @@ import Foundation
 
 struct FirebaseConstants{
     
-    let kFILEREFERENCE = "gs://vakifbank-intern.appspot.com" // firebase storage link
+    let kFILEREFERENCE = "gs://learnconnectonlineacademy.firebasestorage.app" // firebase storage link
     
     let kUSER_PATH  = "User"
     let kCATEGORY_PATH  = "Category"
@@ -26,6 +26,32 @@ struct FirebaseConstants{
 
     //AltKategoritablosu
     let kCATEGORYID = "categoryId"//foreign key
+    let kSUBCATEGORYID = "subcategoryId" //foreignkey
+    let kDESCRIPTION = "description" // açıklaması
+    let kPRICE = "price" //fiyat
+    let kVIDEOLINKS = "videoLinks"
+    let kIMAGELINK = "imageLink"
+    let kDEALERNAME = "dealerName" //user tablosunundan fk
+
+    //sepet
+    let kOWNERID =  "ownerId"
+    let kITEMIDS = "itemIds"
+    
+    //user
+    let kEMAIL = "email"
+    let kFIRSTNAME = "firstName"
+    let kLASTNAME = "lastName"
+    let kFULLNAME = "fullName"
+    let kFULLADRESS =  "fullAdress"
+    let kIMAGENAME = "imageName"
+    let kCITIZIEN = "citizien"
+    let kPHONE = "phoneNumber"
+    let kDATEOFBIRTH = "dateOfBirth"
+    
+    let kONBOARD = "onBoard"
+    let kPURCHASEDITEMIDS = "purchasedItemIds"
+
+    static let gmailCheck:[Substring.Element] = ["@", "g", "m", "a", "i", "l", ".", "c", "o", "m"]
 
 }
 

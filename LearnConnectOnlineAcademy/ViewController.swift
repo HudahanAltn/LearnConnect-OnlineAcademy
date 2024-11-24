@@ -23,10 +23,13 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         categoryTableView.dataSource = self
         categoryTableView.delegate = self
+        categoryTableView.separatorStyle = .none
+
         setUpBinders()
         // Do any additional setup after loading the view.
     }
-
+  
+    
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "categoryToSubcategory"{
@@ -46,6 +49,8 @@ class ViewController: UIViewController {
         //nesneleri bellekten temizle
         categoryVM.categories.removeAll()
     }
+    
+    
     
     func setUpBinders(){
         categoryVM.$categories.sink{ [weak self]  itemss in
@@ -92,6 +97,12 @@ extension ViewController:UITableViewDataSource{
         categoryCell.runCellAnimation()
         return categoryCell
     }
+    
+}
+
+extension ViewController:UISearchBarDelegate{
+
+    
     
 }
 
