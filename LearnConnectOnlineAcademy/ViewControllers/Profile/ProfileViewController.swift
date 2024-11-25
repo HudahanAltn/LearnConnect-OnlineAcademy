@@ -30,31 +30,38 @@ class ProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
         userProfilePictureImageView.setImageViewFrame(cornerRadius: userProfilePictureImageView.frame.size.width/2)
         profileActivityIndicator.hidesWhenStopped = true
         profileHelper.setButtonCornerRadius(value: 8.0, views: purchasedHistory,onSaleButton,likedItemsButton,notificationsButton,contactUsButton,settingsButton,addItemButton,logoutButton)
-        profileHelper.setButtonBorderColor(value: 0.6, color: .green, buttons: purchasedHistory,onSaleButton,likedItemsButton,notificationsButton,contactUsButton,settingsButton,addItemButton,logoutButton)
+        profileHelper.setButtonBackgroundColorColor(value: 0.7, color: .white, buttons: purchasedHistory,onSaleButton,likedItemsButton,notificationsButton,contactUsButton,settingsButton,addItemButton,logoutButton)
     }
     
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        
-        let gradientLayer = CAGradientLayer()
-        gradientLayer.colors = [UIColor.systemGreen.cgColor,UIColor.white.cgColor]
-        gradientLayer.locations = [0.0,1.0]
-        gradientLayer.startPoint = CGPoint(x: 0.0, y: 0.0)
-        gradientLayer.endPoint = CGPoint(x: 0.0, y: 1.0)
-        gradientLayer.frame = CGRect(x: 0.0, y: 0.0, width: self.view.frame.size.width, height: self.view.frame.size.height)
-        self.view.layer.insertSublayer(gradientLayer, at: 0)
-    }
+   
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
       
+        if traitCollection.userInterfaceStyle == .dark {
+            profileHelper.setButtonBorderColor(value: 1.0, color: .white, buttons: purchasedHistory,onSaleButton,likedItemsButton,notificationsButton,contactUsButton,settingsButton,addItemButton,logoutButton)
+        } else {
+            profileHelper.setButtonBackgroundColorColor(value: 0.7, color: .white, buttons: purchasedHistory,onSaleButton,likedItemsButton,notificationsButton,contactUsButton,settingsButton,addItemButton,logoutButton)
+        }
         checkLoginStatus()
         //kullanıcı login durumunu check et böylece bu sayfadaki görsenl nesleer görünür olcak veya olmayacak
     }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            if traitCollection.userInterfaceStyle == .dark {
+                profileHelper.setButtonBorderColor(value: 1.0, color: .white, buttons: purchasedHistory,onSaleButton,likedItemsButton,notificationsButton,contactUsButton,settingsButton,addItemButton,logoutButton)
+            } else {
+                profileHelper.setButtonBackgroundColorColor(value: 0.7, color: .systemGreen, buttons: purchasedHistory,onSaleButton,likedItemsButton,notificationsButton,contactUsButton,settingsButton,addItemButton,logoutButton)
+            }
+        }
+    }
+
  
     @IBAction func ProfileButtonsPressed(_ sender: UIButton) {
 
@@ -116,7 +123,7 @@ extension ProfileViewController{
         userProfilePictureImageView.image = nil
         userNameLabel.text = loggedUser?.fullName
         welcomeLabel.text = "Merhaba"
-        settingsView.backgroundColor = .white
+        settingsView.backgroundColor = UIColor.white.withAlphaComponent(0.3)
         profileActivityIndicator.startAnimating()//resim için animasyon başlat
         StorageManager().downloadImage(imageUrl: loggedUser!.profilePicture!){//resmi firebase'den getir.
             image in
@@ -138,11 +145,12 @@ extension ProfileViewController{
     private func logOutUser(){
         UserViewModel.logoutUserWith{ error in
             if error == nil {//çıkış başarılı
+                UserDefaults.standard.removeObject(forKey: "LastPlaybackTime")
                 self.userProfilePictureImageView.image = UIImage(systemName: "person.circle")//image'i setle
                 if let tabBarController = self.tabBarController {//Tabbar ilk sayfaya geç
                     tabBarController.selectedIndex = 0
-                    tabBarController.tabBar.items![2].badgeValue = ""
-                    tabBarController.tabBar.items![2].badgeColor = .clear
+                    tabBarController.tabBar.items![1].badgeValue = ""
+                    tabBarController.tabBar.items![1].badgeColor = .clear
                 }
             }else{//çıkış başarısız.
                 Alert.createAlert(title: "Hata", message: "Oturum kapatma işlemi başarısız. Lütfen Tekrar deneyiniz.", view: self)
@@ -172,7 +180,7 @@ extension ProfileViewController{
 
     private func createRightBarButtonItem(title:String){
         rightBarButtomItem = UIBarButtonItem(title: title, style: .done, target: self, action: #selector(rightBarButtonItemPressed))
-        rightBarButtomItem.tintColor = .white
+        rightBarButtomItem.tintColor = .label
         navigationItem.rightBarButtonItem = rightBarButtomItem
     }
     

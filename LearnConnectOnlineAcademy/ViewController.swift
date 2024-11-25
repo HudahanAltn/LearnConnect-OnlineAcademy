@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import EmptyDataSet_Swift
 
 class ViewController: UIViewController {
 
@@ -23,6 +24,8 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         categoryTableView.dataSource = self
         categoryTableView.delegate = self
+        categoryTableView.emptyDataSetSource = self
+        categoryTableView.emptyDataSetDelegate = self
         categoryTableView.separatorStyle = .none
 
         setUpBinders()
@@ -106,4 +109,26 @@ extension ViewController:UISearchBarDelegate{
     
 }
 
-
+//MARK: - EmptyDataSetTableView
+extension ViewController:EmptyDataSetSource,EmptyDataSetDelegate{
+    
+    func title(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
+        
+        if Connectivity.isInternetAvailable(){
+            return NSAttributedString(string: "Görüntülenecek ürün bulunamadı!")
+        }else{
+            return NSAttributedString(string: "İnternet bağlantınızı kontrol ediniz!")
+        }
+        
+    }
+    
+    func image(forEmptyDataSet scrollView: UIScrollView) -> UIImage? {
+        if Connectivity.isInternetAvailable(){
+            return UIImage(named: "emptyBox")
+        }else{
+            return UIImage(named: "noWifi")
+        }
+        
+    }
+    
+}

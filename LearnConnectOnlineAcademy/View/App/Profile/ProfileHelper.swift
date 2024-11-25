@@ -27,4 +27,10 @@ class ProfileHelper{
             view.alpha = value
         }
     }
+    
+    func setButtonBackgroundColorColor(value:CGFloat,color:UIColor,buttons:UIButton...){
+        for button in buttons{
+            button.backgroundColor = color.withAlphaComponent(value)
+        }
+    }
 }

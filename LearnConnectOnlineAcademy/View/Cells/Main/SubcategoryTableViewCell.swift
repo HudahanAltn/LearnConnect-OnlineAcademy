@@ -25,9 +25,7 @@ class SubcategoryTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         subcategoryNameLabel.text = nil
-        subcategoryNameLabel.textColor = UIColor { traitCollection in
-            return traitCollection.userInterfaceStyle == .dark ? .systemGreen : .black
-        }
+        
     }
 
     private func setCellUI(){

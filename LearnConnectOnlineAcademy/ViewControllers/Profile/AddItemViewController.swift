@@ -75,17 +75,9 @@ class AddItemViewController: UIViewController {
         view.addGestureRecognizer(tapGesture)
     }
     
-    
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        let gradientLayer = CAGradientLayer()
-        gradientLayer.colors = [UIColor.systemGreen.cgColor,UIColor.white.cgColor]
-        gradientLayer.locations = [0.0,1.0]
-        gradientLayer.startPoint = CGPoint(x: 0.0, y: 0.0)
-        gradientLayer.endPoint = CGPoint(x: 0.0, y: 1.0)
-        gradientLayer.frame = CGRect(x: 0.0, y: 0.0, width: self.view.frame.size.width, height: self.view.frame.size.height)
-        self.view.layer.insertSublayer(gradientLayer, at: 0)
-    }
+ 
+
+ 
     
     //MARK: - Binders
     func setUpCategoriesVMBinders(){
@@ -156,6 +148,7 @@ extension AddItemViewController{
         
         videosTableView.delegate = self
         videosTableView.dataSource = self
+        videosTableView.backgroundColor = .clear
         descriptionTextView.delegate = self
         descriptionTextView.keyboardType = .default
         descriptionTextView.returnKeyType = .done
@@ -163,7 +156,7 @@ extension AddItemViewController{
         descriptionTextView.autocapitalizationType = .none
         itemImageView.contentMode = .scaleAspectFit
         itemImageView.image = UIImage(systemName: "photo.fill")
-        itemImageView.tintColor = .systemGreen
+        itemImageView.tintColor = .label
         uploadActivityİndicator.alpha = 0.0
         uploadActivityİndicator.hidesWhenStopped = true
         
@@ -176,9 +169,9 @@ extension AddItemViewController{
         textFieldHelper.setTextFieldAutoCorrectionType(type: .no, textFields: itemNameTextField,itemPriceTextField)
         textFieldHelper.setTextFieldKeyboardType(type: .default, returnType: .done, textFields: itemNameTextField)
         textFieldHelper.setTextFieldKeyboardType(type: .numberPad, returnType: .done, textFields: itemPriceTextField)
-        textFieldHelper.setTextFieldsDefaultImageViewAtRight(defaultImage: UIImage(systemName: "pencil.circle")!, color: .black, textFields: itemNameTextField,itemPriceTextField)
+        textFieldHelper.setTextFieldsDefaultImageViewAtRight(defaultImage: UIImage(systemName: "pencil.circle")!, color: .label, textFields: itemNameTextField,itemPriceTextField)
         
-        itemPriceTextField.setIconAtLeft(UIImage(systemName: "turkishlirasign.circle")!, color: .black)
+        itemPriceTextField.setIconAtLeft(UIImage(systemName: "turkishlirasign.circle")!, color: .label)
         
         addItemView.configureCategory(pickerview: CategoryPickerView, textfield: itemCategoryTextField, view: self)
         addItemView.configureSubCategory(pickerview: subCategoryPickerView, textfield: itemSubcategoryTextField, view: self)

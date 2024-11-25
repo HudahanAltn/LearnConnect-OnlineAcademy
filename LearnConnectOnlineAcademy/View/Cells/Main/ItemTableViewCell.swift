@@ -40,7 +40,7 @@ class ItemTableViewCell: UITableViewCell {
     }
 
     private func setCellUI(){
-        backgroundColor = UIColor(white: 1.0, alpha: 0.7)
+        self.backgroundColor = .clear
         itemActivityIndicator.hidesWhenStopped = true
         accessoryType = .disclosureIndicator
         let customSelectionColor = UIView()
@@ -54,7 +54,6 @@ class ItemTableViewCell: UITableViewCell {
         itemNameLabel.text = item.name
         itemPriceLabel.text = LocalCurrency().convertCurrency(item.price)
         itemPriceLabel.adjustsFontSizeToFitWidth = true
-        itemOwnerLabel.text = item.dealerMail
         
         if item.imageLink != nil && item.imageLink.count > 0{
             

@@ -7,6 +7,7 @@
 
 import UIKit
 import Combine
+import EmptyDataSet_Swift
 class ItemsViewController: UIViewController {
 
     @IBOutlet weak var itemsTableView: UITableView!
@@ -23,11 +24,18 @@ class ItemsViewController: UIViewController {
         itemsTableView.delegate = self
         itemsTableView.dataSource = self
         itemsTableView.separatorStyle = .none
+        itemsTableView.emptyDataSetSource = self
+        itemsTableView.emptyDataSetDelegate = self
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(self.turnBackToPage))
         setUpBinders()
     }
-    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            itemsTableView.reloadData()
+        }
+    }
     override func viewWillAppear(_ animated: Bool) {
         if Connectivity.isInternetAvailable(){
             itemsVM.downloadItemsFromFirebase(withSubCategoryId: subcategory!.id)
@@ -100,3 +108,25 @@ extension ItemsViewController{
         self.navigationController?.popViewController(animated: true)
     }
 }
+
+
+//MARK: - EmptyDataSetTableView
+extension ItemsViewController:EmptyDataSetSource,EmptyDataSetDelegate{
+    
+    func title(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
+        
+        return NSAttributedString(string: "Görüntülenecek ürün bulunamadı!")
+    }
+    
+    func image(forEmptyDataSet scrollView: UIScrollView) -> UIImage? {
+        if Connectivity.isInternetAvailable(){
+            return UIImage(named: "emptyBox")
+        }else{
+            return UIImage(named: "noWifi")
+        }
+        
+    }
+    
+}
+
+

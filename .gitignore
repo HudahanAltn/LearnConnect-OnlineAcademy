@@ -17,6 +17,9 @@ xcuserdata/
 timeline.xctimeline
 playground.xcworkspace
 Info.plist
+AlgoliaConstants.swift
+AlgoliaServices.swift
+AlgoliaItem.swift
 GoogleService-Info.plist
 # Swift Package Manager
 #

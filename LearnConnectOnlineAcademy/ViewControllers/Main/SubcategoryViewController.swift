@@ -7,7 +7,7 @@
 
 import UIKit
 import Combine
-
+import EmptyDataSet_Swift
 class SubcategoryViewController: UIViewController {
 
     @IBOutlet weak var subcategoryTableView: UITableView!
@@ -21,6 +21,8 @@ class SubcategoryViewController: UIViewController {
         navigationItem.title = category!.name
         subcategoryTableView.delegate = self
         subcategoryTableView.dataSource = self
+        subcategoryTableView.emptyDataSetSource = self
+        subcategoryTableView.emptyDataSetDelegate = self
         subcategoryTableView.separatorStyle = .none
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(self.turnBackToPage))
@@ -28,6 +30,8 @@ class SubcategoryViewController: UIViewController {
         setUpBinders()
         
     }
+    
+
     
     override func viewWillAppear(_ animated: Bool) {
         if Connectivity.isInternetAvailable(){
@@ -103,4 +107,29 @@ extension SubcategoryViewController{
     @objc func turnBackToPage(){
         self.navigationController?.popViewController(animated: true)
     }
+}
+
+
+//MARK: - EmptyDataSetTableView
+extension SubcategoryViewController:EmptyDataSetSource,EmptyDataSetDelegate{
+    
+    func title(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
+        
+        if Connectivity.isInternetAvailable(){
+            return NSAttributedString(string: "Görüntülenecek ürün bulunamadı!")
+        }else{
+            return NSAttributedString(string: "İnternet bağlantınızı kontrol ediniz!")
+        }
+        
+    }
+    
+    func image(forEmptyDataSet scrollView: UIScrollView) -> UIImage? {
+        if Connectivity.isInternetAvailable(){
+            return UIImage(named: "emptyBox")
+        }else{
+            return UIImage(named: "noWifi")
+        }
+        
+    }
+    
 }

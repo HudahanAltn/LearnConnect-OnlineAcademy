@@ -30,6 +30,7 @@ class UITextFieldHelper{
         }
     }
     
+    
 //MARK: -  UITextField Image
     func setTextFieldsDefaultImageViewAtRight(defaultImage:UIImage,color:UIColor,textFields:UITextField...){
         for textfield in textFields{
@@ -97,6 +98,8 @@ class UITextFieldHelper{
         }
         return true
     }
+    
+    
 //MARK: - UITextFiel text Dependencies
     func checkTextFieldDependencies(textfield:UITextField,equal:Int,placeholderName:String)->Bool{
         let nameTextCount = textfield.text!.count
@@ -135,6 +138,7 @@ class UITextFieldHelper{
             return false
         }
     }
+    
 //MARK: - UITextField Fail Animation
     func textFieldFailAnimation(textField:UITextField){
         UIImpactFeedbackGenerator(style: .soft).impactOccurred()
@@ -185,6 +189,13 @@ class UITextFieldHelper{
     func textFieldHasEdited(textField:UITextField){
         textField.layer.borderColor = UIColor.clear.cgColor
         textField.resignFirstResponder()
+    }
+    
+    func setTextFieldBorderColor(borderColor:UIColor,textFields:UITextField...){
+        
+        for textField in textFields{
+            textField.layer.borderColor = borderColor.cgColor
+        }
     }
     
 }

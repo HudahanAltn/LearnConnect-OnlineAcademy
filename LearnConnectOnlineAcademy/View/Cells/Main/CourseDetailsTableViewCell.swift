@@ -9,6 +9,7 @@ import UIKit
 
 class CourseDetailsTableViewCell: UITableViewCell {
 
+    @IBOutlet weak var courseVideoNameLabel: UILabel!
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -18,6 +19,7 @@ class CourseDetailsTableViewCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
+        
     }
 
 }

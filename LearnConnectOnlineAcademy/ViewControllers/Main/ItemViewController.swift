@@ -33,7 +33,7 @@ class ItemViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationController?.navigationBar.tintColor = .black
+       
         profileActiviyIndicator.hidesWhenStopped = true
         profileActiviyIndicator.startAnimating()
         itemContentTableView.dataSource = self
@@ -57,6 +57,7 @@ class ItemViewController: UIViewController {
 
     func setItemContent(){
         itemImageView.contentMode = .scaleAspectFill
+        itemDescriptionLabel.isEditable = false
         if let item = item{
             itemNameLabel.text = item.name
             itemOwnerLabel.text = "sd"
@@ -95,12 +96,9 @@ class ItemViewController: UIViewController {
                 self.itemContentTableView.reloadData()
 
             }
-            
-            
         }
     }
-    
-    
+
     @IBAction func addCartButtonPressed(_ sender: Any) {
     
         let now = CFAbsoluteTimeGetCurrent()
@@ -146,7 +144,7 @@ extension ItemViewController{
                     }else {
                         cart!.itemIds.append(self.item!.id)
                         self.updateCart(cart:cart!,withValues:[FirebaseConstants().kITEMIDS:cart!.itemIds])
-                        self.tabBarController!.tabBar.items![2].badgeValue = "\(cart!.itemIds.count)"
+                        self.tabBarController!.tabBar.items![1].badgeValue = "\(cart!.itemIds.count)"
                     }
                 }
             }else{
@@ -173,7 +171,7 @@ extension ItemViewController:UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let itemContentCell = tableView.dequeueReusableCell(withIdentifier: "itemContentCell", for: indexPath) as! ItemContentTableViewCell
-    
+        
         if let prefix = itemContent[indexPath.row].components(separatedBy: ".").first {
             itemContentCell.itemContentLabel.text = "\(indexPath.row + 1))\(prefix)"
         }

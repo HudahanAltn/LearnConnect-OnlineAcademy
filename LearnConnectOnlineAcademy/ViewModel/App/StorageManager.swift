@@ -218,6 +218,7 @@ class StorageManager{
             completion(videoNames)
         }
     }
+  
 
     func deleteProfileImage(imageUrl:String,completion:@escaping(_ error:Error?)->Void){// profilini kullanıcı düzenlerken yeni fotoğraf eklemek isterse önceki storage'den silinmelidir.
         let storageRef = storage.reference()

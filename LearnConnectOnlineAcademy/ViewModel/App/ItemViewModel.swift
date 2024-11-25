@@ -57,4 +57,33 @@ class ItemViewModel{
             }
         }
     }
+    
+    //kullanıcınnı satın adlığı kurslar
+    func downloadPurchasedItems(_ withIds:[String],completion:@escaping (_ itemArray:[Item])->Void){
+        var count = 0//indirelecek item sayısını tutar
+        var itemArray:[Item] = [Item]()//itemleri tutacka olan array
+        if withIds.count > 0 {
+            for itemId in withIds{
+                FirebaseReference(.Items).document(itemId).getDocument{ snapshot,error in
+                    guard let snapshot = snapshot else{
+                        completion(itemArray)
+                        return
+                    }
+                    
+                    if snapshot.exists {
+                        itemArray.append(Item(_dictionary: snapshot.data()! as NSDictionary))//item yarat ve diziye ekle
+                        count += 1
+                    }else {
+                        completion(itemArray)
+                    }
+
+                    if count == withIds.count {
+                        completion(itemArray)
+                    }
+                }
+            }
+        }else{
+            completion(itemArray)
+        }
+    }
 }

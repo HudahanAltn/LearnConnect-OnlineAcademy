@@ -10,25 +10,17 @@ import UIKit
 class CartTableViewCell: UITableViewCell {
 
     @IBOutlet weak var cartItemImageView: UIImageView!
-    
-    
     @IBOutlet weak var cartItemNameLabel: UILabel!
-    
     @IBOutlet weak var dealerNameLabel: UILabel!
-    
-    
     @IBOutlet weak var cartItemPriceLabel: UILabel!
-    
-    
     @IBOutlet weak var cartActivityIndicator: UIActivityIndicatorView!
-    
-    
     
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
         
         setCellUI()
+        setCartItemImageViewUI()
         
     }
     
@@ -44,16 +36,12 @@ class CartTableViewCell: UITableViewCell {
     
     private func setCellUI(){
         
-        backgroundColor = UIColor(white: 1.0, alpha: 0.7)
+        self.backgroundColor = .clear
         cartActivityIndicator.hidesWhenStopped = true
-        layer.borderColor = UIColor.systemGreen.cgColor
-        layer.borderWidth = 0.5
-        layer.cornerRadius = 5
         accessoryType = .disclosureIndicator
         let customSelectionColor = UIView()
         customSelectionColor.backgroundColor = .systemGreen
         self.selectedBackgroundView = customSelectionColor
-        setCartItemImageViewUI()
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -68,11 +56,7 @@ class CartTableViewCell: UITableViewCell {
         cartItemNameLabel.text = item.name
         cartItemPriceLabel.text = LocalCurrency().convertCurrency(item.price)
         cartItemPriceLabel.adjustsFontSizeToFitWidth = true
-        dealerNameLabel.text = item.dealerMail
-        //sadece isim descp ve price gösterdik şimdi resim göstercez.
-        
-        //burda imageler indirelecek.
-        
+
         if item.imageLink != nil && item.imageLink.count > 0{// resim varsa
             
             StorageManager().downloadImage(imageUrl: item.imageLink){//indirme

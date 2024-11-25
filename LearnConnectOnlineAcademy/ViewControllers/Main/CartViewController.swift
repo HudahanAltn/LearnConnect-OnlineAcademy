@@ -6,19 +6,15 @@
 //
 
 import UIKit
-
+import EmptyDataSet_Swift
 class CartViewController: UIViewController {
 
     @IBOutlet weak var cartTableView: UITableView!
-    
     @IBOutlet weak var priceButton: UIButton!
-    
     @IBOutlet weak var checkOutButton: UIButton!
     
-    @IBOutlet weak var deliveryView: UIView!
-    
     var rightBarButtonItem:UIBarButtonItem!
-
+    
     var cartVM = CartViewModel()
     var cartHelper = CartHelper()
     var cart:Cart?
@@ -27,6 +23,8 @@ class CartViewController: UIViewController {
 
     
     var isDeliveryVCOpen:Bool = false
+    var isUserPurchasedCourse:Bool = false
+    
     private let minimumTapInterval = CFTimeInterval(4)
     private var lastTapTime = CFAbsoluteTime(0)
     
@@ -35,91 +33,60 @@ class CartViewController: UIViewController {
 
         cartTableView.delegate = self
         cartTableView.dataSource = self
+        cartTableView.emptyDataSetSource = self
+        cartTableView.emptyDataSetDelegate = self
         cartTableView.backgroundColor = .clear
         checkOutButton.layer.cornerRadius = 10
         priceButton.setImage(UIImage(systemName: "chevron.up"), for: .normal)
         priceButton.layer.borderColor = UIColor.systemGreen.cgColor
         priceButton.layer.borderWidth = 0.5
         priceButton.layer.cornerRadius = 10
-        deliveryView.alpha = 0
-        deliveryView.layer.cornerRadius = 10
-
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
+        print("kurs ödemesi yapıldımı : \(isUserPurchasedCourse)")
+        NotificationCenter.default.addObserver(self, selector: #selector(self.userPaid(notification:)), name: .notificaitonName, object: nil)
         checkLoginStatusForCartVC()
         isDeliveryVCOpen = false
     }
     
-//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        
-//        if segue.identifier == "cartToPayment"{
-//            if let price = sender as? String{
-//                
-//                let destinationVC = segue.destination as! PaymentViewController
-//                destinationVC.totalPrice = price
-//            }
-//        }
-//    }
+    
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == "cartToPayment"{
+            if let price = sender as? String{
+                
+                let destinationVC = segue.destination as! PaymentViewController
+                destinationVC.totalPrice = price
+            }
+        }
+    }
     
     @IBAction func priceButtonPressed(_ sender: Any) {
         
         if isDeliveryVCOpen{//kargo vc açık.o zaman vc'yi kapat
             priceButton.setImage(UIImage(systemName: "chevron.up"), for: .normal)
             isDeliveryVCOpen = false
-            UIView.animate(withDuration: 0.5){
-                self.deliveryView.alpha = 0
-            }
+          
         }else{//kapalı.o zaman vcyi aç
             priceButton.setImage(UIImage(systemName: "chevron.down"), for: .normal)
             isDeliveryVCOpen = true
-            UIView.animate(withDuration: 0.5){
-                self.deliveryView.alpha = 1
-            }
+          
         }
     }
     
     
     @IBAction func checkOutButtonPressed(_ sender: Any) {
-        
-        let now = CFAbsoluteTimeGetCurrent()
-        guard now >= lastTapTime + minimumTapInterval else { return }
-        lastTapTime = now
-        
         if Connectivity.isInternetAvailable(){
-            if cart?.itemIds.count != 0 {
-                let price = priceButton.titleLabel?.text
-                print("price miktarı:\(price)")
-                performSegue(withIdentifier: "cartToPayment", sender: price)
-//                addItemToPurchasedListFromCart()//sepetteki ürünleri satın alınanlar listesine ekle
-//                addItemsToPurchasedList(self.purchasedItemIds)//sepettekileri kullanıcın satın alınanlarına ekle
-//                emptyCart()//sepeti ve satın alınanlar listesini boşalt
-//
-                self.tabBarController!.tabBar.items![2].badgeValue = "0"
-                self.tabBarController!.tabBar.items![2].badgeColor = .clear
-                
-            }else{
-                
-                Alert.createAlert(title: "Hata", message: "Lütfen Sepetinize ürün ekleyiniz!", view: self)
-            }
+            performSegue(withIdentifier: "cartToPayment", sender: priceButton.titleLabel?.text)
+
         }else{
             Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
-        }
-        
-      
-        
-        //itemi hem kategoriden hemde kullanıcının satılığa çıkar kısmından sil.sonra kullanıcıya bildirim yoll şu kişi ürünü satın aldı diye.
-        
-//        let paymentVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "paymentVC") as! PaymentViewController
-//
-//        paymentVC.purchasedItemsIds = purchasedItemIds
-//
-//        self.navigationController?.pushViewController(paymentVC, animated: true)
-    }
-    
-    
 
+        }
+    }
 }
 
 //MARK: - CartVC Helper
@@ -134,12 +101,34 @@ extension CartViewController{
             updateTotalLabels(true)
             cartHelper.setAlphaValue(value: 0, views: priceButton,checkOutButton)
             navigationItem.rightBarButtonItem?.isHidden = true
-        }else {//oturum açan kullanıcı var. Mevcut sepetine ürünü ekle
-            loadCartFromFirebase(loggedUser: loggedUser)//kullanıcın sepetini getir.
-            cartHelper.setAlphaValue(value: 1, views: priceButton,checkOutButton)
-            priceButton.setTitle(returnCartTotalPrice(), for: .normal)
-            createRightBarButtonItem(title: "Ödeme")
-            navigationItem.rightBarButtonItem?.isHidden = false
+        }else {//oturum açan kullanıcı var.
+            if Connectivity.isInternetAvailable(){ //sepeti görüntülemek için internete bağlan
+                if cart?.itemIds.count != 0 {//sepette ürün var
+                    if isUserPurchasedCourse{// kullanıcı payment ile ödeme yapmış ise
+                        let price = priceButton.titleLabel?.text
+                        Alert.createAlert(title: "Başarılı", message: "Alındı", view: self)
+                        addItemToPurchasedListFromCart()//sepetteki ürünleri satın alınanlar listesine ekle
+                        addItemsToPurchasedList(self.purchasedItemIds)//sepettekileri kullanıcın satın alınanlarına ekle
+                        emptyCart()//sepeti ve satın alınanlar listesini boşalt
+                        self.tabBarController!.tabBar.items![1].badgeValue = "0"
+                        self.tabBarController!.tabBar.items![1].badgeColor = .clear
+                    }else{//ödeme yapmadıysa normal sepeti getir
+                        loadCartFromFirebase(loggedUser: loggedUser)//kullanıcın sepetini getir.
+                        cartHelper.setAlphaValue(value: 1, views: priceButton,checkOutButton)
+                        priceButton.setTitle(returnCartTotalPrice(), for: .normal)
+                        createRightBarButtonItem(title: "Ödeme")
+                        navigationItem.rightBarButtonItem?.isHidden = false
+                    }
+                }else{
+                    Alert.createAlert(title: "Hata", message: "Lütfen Sepetinize ürün ekleyiniz!", view: self)
+                }
+            }else{
+                allItemsInCart.removeAll()
+                cartTableView.reloadData()
+                priceButton.setTitle(returnCartTotalPrice(), for: .normal)
+                self.navigationItem.title = "Sepetim (0 Ürün)"
+                Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
+            }
         }
     }
     
@@ -237,9 +226,12 @@ extension CartViewController{
     private func loadItemsFromCart(){//sepetteki itemleri getir.
         if cart != nil{
             cartVM.downloadItemsForCart(cart!.itemIds){ allItems in//sepetteki itemleri getir.
+                self.allItemsInCart.removeAll()
                 self.allItemsInCart = allItems
                 self.cartTableView.reloadData()
                 self.updateTotalLabels(false)
+                self.tabBarController!.tabBar.items![1].badgeValue = "\(allItems.count)"
+                self.tabBarController!.tabBar.items![1].badgeColor = .red
             }
         }
     }
@@ -290,7 +282,9 @@ extension CartViewController{
 //MARK: - OBJC
 extension CartViewController{
    
-
+    @objc func userPaid(notification:NSNotification){
+        isUserPurchasedCourse = notification.userInfo?["message"] as! Bool
+    }
    
    @objc func rightBarButtonItemPressed(){
        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -325,4 +319,48 @@ extension CartViewController{
            Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
        }
    }
+}
+
+extension CartViewController:EmptyDataSetSource,EmptyDataSetDelegate{
+    
+    func title(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
+        
+        if Connectivity.isInternetAvailable(){
+            return NSAttributedString(string: "Sepette ürün bulunamadı!")
+        }else{
+            return NSAttributedString(string: "İnternet bağlantısı mevcut değil!")
+        }
+        
+    }
+    
+    func image(forEmptyDataSet scrollView: UIScrollView) -> UIImage? {
+        
+        
+        if Connectivity.isInternetAvailable(){
+            return UIImage(named:"emptyCart")
+        }else{
+            return UIImage(named: "noWifi")
+        }
+        
+    }
+    
+    func description(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
+        if UserViewModel.currentUser() != nil{
+            if Connectivity.isInternetAvailable(){
+                return NSAttributedString(string: "Sepetenize ürün ekleyiniz.")
+            }else{
+                return NSAttributedString(string: "Sepeti görüntülemek için internet bağlantısı gerekmektedir!")
+            }
+        }else{
+            if Connectivity.isInternetAvailable(){
+                return NSAttributedString(string: "Sepeti görüntülemek için giriş yapılmalıdır!")
+            }else{
+                return NSAttributedString(string: "Sepeti görüntülemek için internet bağlantısı gerekmektedir!")
+            }
+        }
+        
+        
+    }
+    
+ 
 }

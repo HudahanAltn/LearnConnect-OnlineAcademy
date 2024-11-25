@@ -24,7 +24,7 @@ class ItemContentTableViewCell: UITableViewCell {
     }
 
     private func setCellUI(){
-        backgroundColor = UIColor(white: 1.0, alpha: 0.7)
+        backgroundColor = .clear
         accessoryType = .disclosureIndicator
         let customSelectionColor = UIView()
         customSelectionColor.backgroundColor = .systemGreen

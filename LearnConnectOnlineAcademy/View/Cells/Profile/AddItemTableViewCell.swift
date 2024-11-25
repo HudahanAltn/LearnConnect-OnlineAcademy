@@ -29,7 +29,7 @@ class AddItemTableViewCell: UITableViewCell {
     }
 
     private func setCellUI(){
-        backgroundColor = UIColor(named: "")
+        backgroundColor = .clear
         accessoryType = .disclosureIndicator
         let customSelectionColor = UIView()
         customSelectionColor.backgroundColor = .systemGreen
