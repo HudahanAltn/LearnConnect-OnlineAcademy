@@ -7,7 +7,7 @@
 
 import Foundation
 import UIKit
-
+import AlgoliaSearchClient
 class ItemViewModel{
     
     @Published var items:[Item] = [Item]()
@@ -85,5 +85,42 @@ class ItemViewModel{
         }else{
             completion(itemArray)
         }
+    }
+    
+    //MARK: - Search
+    func downloadItemsForSearching(_ withIds:[String],completion:@escaping (_ itemArray:[Item])->Void){
+        
+        var count = 0
+        var itemArray:[Item] = [Item]()
+        if withIds.count > 0{
+            for itemId in withIds{
+                FirebaseReference(.Items).document(itemId).getDocument{
+                    snapshot,error in
+                    guard let snapshot = snapshot else{
+                        completion(itemArray)
+                        return
+                    }
+                    if snapshot.exists{
+                        itemArray.append(Item(_dictionary: snapshot.data()! as NSDictionary))
+                        count += 1
+                    }else{
+                        completion(itemArray)
+                    }
+    
+                    if count == withIds.count{
+                        
+                        completion(itemArray)
+                    }
+                }
+            }
+        }else{
+            completion(itemArray)
+        }
+    }
+    func saveItemToAlgolia(item:Item){
+        
+        let index = AlgoliaService.shared.index
+        let itemToSave = AlgoliaItem(objectID: ObjectID(rawValue: item.id!), name: item.name)
+        let _: ()? = try? index.saveObject(itemToSave).wait()
     }
 }

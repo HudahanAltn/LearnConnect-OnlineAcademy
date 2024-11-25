@@ -16,6 +16,7 @@
 		05DDEAD52CEFC6D4008C7262 /* FirebaseFirestoreCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 05DDEAD42CEFC6D4008C7262 /* FirebaseFirestoreCombine-Community */; };
 		05DDEAD72CEFC6D4008C7262 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 05DDEAD62CEFC6D4008C7262 /* FirebaseStorage */; };
 		05DDEAD92CEFC6D4008C7262 /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 05DDEAD82CEFC6D4008C7262 /* FirebaseStorageCombine-Community */; };
+		05F802262CF53E8700383154 /* AlgoliaSearchClient in Frameworks */ = {isa = PBXBuildFile; productRef = 05F802252CF53E8700383154 /* AlgoliaSearchClient */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,6 +54,7 @@
 				05DDEAD92CEFC6D4008C7262 /* FirebaseStorageCombine-Community in Frameworks */,
 				05DDEAD12CEFC6D4008C7262 /* FirebaseDatabase in Frameworks */,
 				0515ADD92CF3A2B80003675F /* EmptyDataSet-Swift in Frameworks */,
+				05F802262CF53E8700383154 /* AlgoliaSearchClient in Frameworks */,
 				05DDEAD52CEFC6D4008C7262 /* FirebaseFirestoreCombine-Community in Frameworks */,
 				05DDEAD72CEFC6D4008C7262 /* FirebaseStorage in Frameworks */,
 				05DDEAD32CEFC6D4008C7262 /* FirebaseFirestore in Frameworks */,
@@ -108,6 +110,7 @@
 				05DDEAD62CEFC6D4008C7262 /* FirebaseStorage */,
 				05DDEAD82CEFC6D4008C7262 /* FirebaseStorageCombine-Community */,
 				0515ADD82CF3A2B80003675F /* EmptyDataSet-Swift */,
+				05F802252CF53E8700383154 /* AlgoliaSearchClient */,
 			);
 			productName = LearnConnectOnlineAcademy;
 			productReference = 05A93CAD2CEFA72F0077513A /* LearnConnectOnlineAcademy.app */;
@@ -140,6 +143,7 @@
 			packageReferences = (
 				05DDEAC92CEFC6D4008C7262 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				0515ADD72CF3A2B80003675F /* XCRemoteSwiftPackageReference "EmptyDataSet-Swift" */,
+				05F802242CF53E8700383154 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 05A93CAE2CEFA72F0077513A /* Products */;
@@ -391,6 +395,14 @@
 				minimumVersion = 11.0.0;
 			};
 		};
+		05F802242CF53E8700383154 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/algolia/algoliasearch-client-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.18.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -438,6 +450,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 05DDEAC92CEFC6D4008C7262 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = "FirebaseStorageCombine-Community";
+		};
+		05F802252CF53E8700383154 /* AlgoliaSearchClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 05F802242CF53E8700383154 /* XCRemoteSwiftPackageReference "algoliasearch-client-swift" */;
+			productName = AlgoliaSearchClient;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -11,8 +11,7 @@ import EmptyDataSet_Swift
 
 class ViewController: UIViewController {
 
-    
-    @IBOutlet weak var searchBar: UISearchBar!
+
     
     @IBOutlet weak var categoryTableView: UITableView!
     
@@ -28,6 +27,8 @@ class ViewController: UIViewController {
         categoryTableView.emptyDataSetDelegate = self
         categoryTableView.separatorStyle = .none
 
+        self.navigationController?.navigationBar.prefersLargeTitles = true
+        self.navigationItem.largeTitleDisplayMode = .always
         setUpBinders()
         // Do any additional setup after loading the view.
     }
@@ -100,12 +101,6 @@ extension ViewController:UITableViewDataSource{
         categoryCell.runCellAnimation()
         return categoryCell
     }
-    
-}
-
-extension ViewController:UISearchBarDelegate{
-
-    
     
 }
 

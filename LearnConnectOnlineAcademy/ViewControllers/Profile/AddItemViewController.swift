@@ -246,6 +246,7 @@ extension AddItemViewController{
             item.videoLinks = videoLinkArray
             
             self.itemVM.saveItemToFirestore(item)//itemi kayıt et.
+            self.itemVM.saveItemToAlgolia(item: item)//algolia'ya itemi kaydet
             self.uploadActivityİndicator.stopAnimating()
             Alert.createAlertWithPop(title: "Başarılı", message: "Ürün Eklendi", view: self)
 

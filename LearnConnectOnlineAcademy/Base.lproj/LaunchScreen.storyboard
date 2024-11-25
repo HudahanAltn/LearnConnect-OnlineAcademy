@@ -17,8 +17,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="video.bubble" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="umn-e5-oNh">
-                                <rect key="frame" x="96.666666666666686" y="327" width="200" height="199"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="video" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="umn-e5-oNh">
+                                <rect key="frame" x="96.666666666666686" y="328.33333333333331" width="200" height="195.33333333333331"/>
                                 <color key="tintColor" systemColor="systemGreenColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="200" id="40a-qv-OQQ"/>
@@ -31,14 +31,38 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Version 1.0.5" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tee-ke-oKu">
+                                <rect key="frame" x="148.66666666666666" y="797" width="96" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hüdahan Altun" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="P9M-YM-Lft">
+                                <rect key="frame" x="129.66666666666666" y="763" width="133.99999999999997" height="24"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Online Academy" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hbK-vJ-B4y">
+                                <rect key="frame" x="137.66666666666666" y="558" width="117.66666666666666" height="19.333333333333371"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="tee-ke-oKu" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="3eg-XA-K07"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="Cbc-gs-PTX" secondAttribute="bottom" constant="270" id="DH3-SE-bnb"/>
                             <constraint firstItem="umn-e5-oNh" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Msz-HE-zdN"/>
+                            <constraint firstItem="tee-ke-oKu" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="Ovl-J4-OB1"/>
                             <constraint firstItem="Cbc-gs-PTX" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="Vht-eO-2if"/>
+                            <constraint firstItem="hbK-vJ-B4y" firstAttribute="top" secondItem="Cbc-gs-PTX" secondAttribute="bottom" constant="10" id="Xav-cN-NHx"/>
+                            <constraint firstItem="P9M-YM-Lft" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="aI2-A2-6VC"/>
                             <constraint firstItem="umn-e5-oNh" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="ccM-X2-wKQ"/>
+                            <constraint firstItem="hbK-vJ-B4y" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="iUN-ov-7UG"/>
+                            <constraint firstItem="tee-ke-oKu" firstAttribute="top" secondItem="P9M-YM-Lft" secondAttribute="bottom" constant="10" id="tqE-hQ-r5S"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Cbc-gs-PTX" secondAttribute="trailing" constant="10" id="xWJ-ms-oaz"/>
                         </constraints>
                     </view>
@@ -49,7 +73,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="video.bubble" catalog="system" width="128" height="110"/>
+        <image name="video" catalog="system" width="128" height="82"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
