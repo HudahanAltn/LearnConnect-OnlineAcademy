@@ -13,25 +13,31 @@ class CoursesViewController: UIViewController {
     
     var itemVM = ItemViewModel()
     var purchasedCourses:[Item] = [Item] ()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         coursesTableView.delegate = self
         coursesTableView.dataSource = self
         coursesTableView.emptyDataSetSource = self
         coursesTableView.emptyDataSetDelegate = self
+        coursesTableView.separatorStyle = .none
     }
    
     override func viewWillAppear(_ animated: Bool) {
         super.viewDidAppear(true)
-        if Connectivity.isInternetAvailable(){
-            loadPurchasedItems()
-        }else{
+        if UserViewModel.currentUser() == nil{
+            self.navigationItem.title = "Learn Connect"
             purchasedCourses.removeAll()
             coursesTableView.reloadData()
-            Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
+        }else{
+            if Connectivity.isInternetAvailable(){
+                loadPurchasedItems()
+            }else{
+                purchasedCourses.removeAll()
+                coursesTableView.reloadData()
+                Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
+            }
         }
-        
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -93,6 +99,24 @@ extension CoursesViewController:UITableViewDataSource{
 
 extension CoursesViewController:EmptyDataSetSource,EmptyDataSetDelegate{
     
+   
+    func description(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
+        if UserViewModel.currentUser() != nil{
+            if Connectivity.isInternetAvailable(){
+                return NSAttributedString(string: "Güncel kurslara erişin.")
+            }else{
+                return NSAttributedString(string: "Kursları görüntülemek için internet bağlantısı gerekmektedir!")
+            }
+        }else{
+            if Connectivity.isInternetAvailable(){
+                return NSAttributedString(string: "Kursları görüntülemek için giriş yapılmalıdır!")
+            }else{
+                return NSAttributedString(string: "")
+            }
+        }
+        
+        
+    }
     func title(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
         
         if Connectivity.isInternetAvailable(){
@@ -103,6 +127,7 @@ extension CoursesViewController:EmptyDataSetSource,EmptyDataSetDelegate{
     }
     
     func image(forEmptyDataSet scrollView: UIScrollView) -> UIImage? {
+        
         if Connectivity.isInternetAvailable(){
             return UIImage(named: "history")
         }else{

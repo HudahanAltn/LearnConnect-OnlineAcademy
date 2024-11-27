@@ -116,7 +116,7 @@ extension SubcategoryViewController:EmptyDataSetSource,EmptyDataSetDelegate{
     func title(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
         
         if Connectivity.isInternetAvailable(){
-            return NSAttributedString(string: "Görüntülenecek ürün bulunamadı!")
+            return nil
         }else{
             return NSAttributedString(string: "İnternet bağlantınızı kontrol ediniz!")
         }
@@ -125,7 +125,7 @@ extension SubcategoryViewController:EmptyDataSetSource,EmptyDataSetDelegate{
     
     func image(forEmptyDataSet scrollView: UIScrollView) -> UIImage? {
         if Connectivity.isInternetAvailable(){
-            return UIImage(named: "emptyBox")
+            return nil
         }else{
             return UIImage(named: "noWifi")
         }

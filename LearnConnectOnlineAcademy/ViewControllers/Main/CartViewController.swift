@@ -36,6 +36,7 @@ class CartViewController: UIViewController {
         cartTableView.emptyDataSetSource = self
         cartTableView.emptyDataSetDelegate = self
         cartTableView.backgroundColor = .clear
+        cartTableView.separatorStyle = .none
         checkOutButton.layer.cornerRadius = 10
         priceButton.setImage(UIImage(systemName: "chevron.up"), for: .normal)
         priceButton.layer.borderColor = UIColor.systemGreen.cgColor
@@ -47,6 +48,7 @@ class CartViewController: UIViewController {
         super.viewWillAppear(true)
         print("kurs ödemesi yapıldımı : \(isUserPurchasedCourse)")
         NotificationCenter.default.addObserver(self, selector: #selector(self.userPaid(notification:)), name: .notificaitonName, object: nil)
+        cartTableView.reloadData()
         checkLoginStatusForCartVC()
         isDeliveryVCOpen = false
     }
@@ -80,7 +82,12 @@ class CartViewController: UIViewController {
     
     @IBAction func checkOutButtonPressed(_ sender: Any) {
         if Connectivity.isInternetAvailable(){
-            performSegue(withIdentifier: "cartToPayment", sender: priceButton.titleLabel?.text)
+            if cart?.itemIds.count == 0{
+                Alert.createAlert(title: "Bilgilendirme", message: "Öncelikle Sepetinize Ürün Ekleyin", view: self)
+
+            }else{
+                performSegue(withIdentifier: "cartToPayment", sender: priceButton.titleLabel?.text)
+            }
 
         }else{
             Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
@@ -103,24 +110,20 @@ extension CartViewController{
             navigationItem.rightBarButtonItem?.isHidden = true
         }else {//oturum açan kullanıcı var.
             if Connectivity.isInternetAvailable(){ //sepeti görüntülemek için internete bağlan
-                if cart?.itemIds.count != 0 {//sepette ürün var
-                    if isUserPurchasedCourse{// kullanıcı payment ile ödeme yapmış ise
-                        let price = priceButton.titleLabel?.text
-                        Alert.createAlert(title: "Başarılı", message: "Alındı", view: self)
-                        addItemToPurchasedListFromCart()//sepetteki ürünleri satın alınanlar listesine ekle
-                        addItemsToPurchasedList(self.purchasedItemIds)//sepettekileri kullanıcın satın alınanlarına ekle
-                        emptyCart()//sepeti ve satın alınanlar listesini boşalt
-                        self.tabBarController!.tabBar.items![1].badgeValue = "0"
-                        self.tabBarController!.tabBar.items![1].badgeColor = .clear
-                    }else{//ödeme yapmadıysa normal sepeti getir
-                        loadCartFromFirebase(loggedUser: loggedUser)//kullanıcın sepetini getir.
-                        cartHelper.setAlphaValue(value: 1, views: priceButton,checkOutButton)
-                        priceButton.setTitle(returnCartTotalPrice(), for: .normal)
-                        createRightBarButtonItem(title: "Ödeme")
-                        navigationItem.rightBarButtonItem?.isHidden = false
-                    }
-                }else{
-                    Alert.createAlert(title: "Hata", message: "Lütfen Sepetinize ürün ekleyiniz!", view: self)
+                if isUserPurchasedCourse{// kullanıcı payment ile ödeme yapmış ise
+                    let price = priceButton.titleLabel?.text
+                    Alert.createAlert(title: "Başarılı", message: "Alındı", view: self)
+                    addItemToPurchasedListFromCart()//sepetteki ürünleri satın alınanlar listesine ekle
+                    addItemsToPurchasedList(self.purchasedItemIds)//sepettekileri kullanıcın satın alınanlarına ekle
+                    emptyCart()//sepeti ve satın alınanlar listesini boşalt
+                    self.tabBarController!.tabBar.items![2].badgeValue = "0"
+                    self.tabBarController!.tabBar.items![2].badgeColor = .clear
+                }else{//ödeme yapmadıysa normal sepeti getir
+                    loadCartFromFirebase(loggedUser: loggedUser)//kullanıcın sepetini getir.
+                    cartHelper.setAlphaValue(value: 1, views: priceButton,checkOutButton)
+                    priceButton.setTitle(returnCartTotalPrice(), for: .normal)
+                    createRightBarButtonItem(title: "Ödeme")
+                    navigationItem.rightBarButtonItem?.isHidden = false
                 }
             }else{
                 allItemsInCart.removeAll()
@@ -230,8 +233,8 @@ extension CartViewController{
                 self.allItemsInCart = allItems
                 self.cartTableView.reloadData()
                 self.updateTotalLabels(false)
-                self.tabBarController!.tabBar.items![1].badgeValue = "\(allItems.count)"
-                self.tabBarController!.tabBar.items![1].badgeColor = .red
+                self.tabBarController!.tabBar.items![2].badgeValue = "\(allItems.count)"
+                self.tabBarController!.tabBar.items![2].badgeColor = .red
             }
         }
     }

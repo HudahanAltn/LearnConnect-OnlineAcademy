@@ -51,6 +51,12 @@ struct FirebaseConstants{
     let kONBOARD = "onBoard"
     let kPURCHASEDITEMIDS = "purchasedItemIds"
 
+    
+    //Review
+    
+    let kCOMMENT = "comment"
+    let kPOINT = "point"
+    let kITEMID = "itemId"
     static let gmailCheck:[Substring.Element] = ["@", "g", "m", "a", "i", "l", ".", "c", "o", "m"]
 
 }

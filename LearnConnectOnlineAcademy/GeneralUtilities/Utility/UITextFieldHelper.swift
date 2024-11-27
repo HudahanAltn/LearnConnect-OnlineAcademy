@@ -163,8 +163,6 @@ class UITextFieldHelper{
         let currentText = textField.text ?? ""
         let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
         let characterCount = newText.count
-        
-        print("characterCount:\(characterCount)")
         textField.rightViewMode = .always
         let characterCountLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
         characterCountLabel.textColor = .darkGray

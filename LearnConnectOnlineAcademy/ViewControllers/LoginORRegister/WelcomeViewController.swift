@@ -63,62 +63,73 @@ class WelcomeViewController: UIViewController {
     
     
     @IBAction func passwordForgetButtonPressed(_ sender: Any) {
-        
-        if accountDependency.checkEmailDependencies(email: emailTextField){//maili güvenli şekilde al
-            loginActivityIndicator.startAnimating()
-            
-            UserViewModel.resetPassword(email: self.emailTextField.text!){//şifre sıfılrama mailini gönder
-                error  in
-                
-                if error == nil{//kayıtlı hesap var doğrulanmış veya doğrulanmamış olması çok önemli değil.
-                    //şifre yenileme bağlantısı gönderildi.
-                    Alert.createAlert(title: "Başarılı", message: "Parola sıfırlama bağlantısı gönderildi. Lütfen gelen kutunuzu kontrol ediniz. Ardından giriş yapınız", view: self)
-                }else{//kullanıcının girdiği hesap kayıtlı değil
-                    Alert.createAlert(title: "Hata", message: "Kayıtlı hesap bulunamadı. Lütfen geçerli bir mail adresi giriniz.", view: self)
+        if Connectivity.isInternetAvailable(){
+            if accountDependency.checkEmailDependencies(email: emailTextField){//maili güvenli şekilde al
+                loginActivityIndicator.startAnimating()
+                UserViewModel.resetPassword(email: self.emailTextField.text!){//şifre sıfılrama mailini gönder
+                    error  in
+                    
+                    if error == nil{//kayıtlı hesap var doğrulanmış veya doğrulanmamış olması çok önemli değil.
+                        //şifre yenileme bağlantısı gönderildi.
+                        Alert.createAlert(title: "Başarılı", message: "Parola sıfırlama bağlantısı gönderildi. Lütfen gelen kutunuzu kontrol ediniz. Ardından giriş yapınız", view: self)
+                    }else{//kullanıcının girdiği hesap kayıtlı değil
+                        Alert.createAlert(title: "Hata", message: "Kayıtlı hesap bulunamadı. Lütfen geçerli bir mail adresi giriniz.", view: self)
+                    }
+                    self.loginActivityIndicator.stopAnimating()
                 }
-                self.loginActivityIndicator.stopAnimating()
+            }else{
+                Alert.createAlert(title: "Hatırlatma", message: "Lütfen mail adres kısmını doldurunuz!", view: self)
             }
         }else{
-            Alert.createAlert(title: "Hatırlatma", message: "Lütfen mail adres kısmını doldurunuz!", view: self)
+            Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
         }
     }
     
     @IBAction func registerButtonPressed(_ sender: Any) {
-        
-        let personalInfoVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "personalInfoVC") as! PersonalInfoViewController
-        navigationController?.pushViewController(personalInfoVC, animated: true)
+        if Connectivity.isInternetAvailable(){
+            let personalInfoVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "personalInfoVC") as! PersonalInfoViewController
+            navigationController?.pushViewController(personalInfoVC, animated: true)
+        }else{
+            Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
+
+        }
+       
     }
     
     @IBAction func loginButtonPressed(_ sender: Any) {
-                let now = CFAbsoluteTimeGetCurrent()
+        let now = CFAbsoluteTimeGetCurrent()
         guard now >= lastTapTime + minimumTapInterval else { return }
         lastTapTime = now
         print("giriş basıldı ")
-        if emailTextField.text != "" && passwordTextField.text != ""{
-            loginActivityIndicator.startAnimating()
-            
-            UserViewModel.loginUserWith(email: emailTextField.text!, password: passwordTextField.text!){ [self] error,isEmailVerified in
-
-                if error == nil{//kayıtlı kullanıcı var
-                    if isEmailVerified{//kayıtlı kullanıcı var ve hesap doğrulandı.
-                        print("GİRİŞ BAŞARILI")
-                        UserViewModel.downloadUserFromFirestore(email: self.emailTextField.text!)//kullanıcıya ait verileri indir.
-                        Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(turnBackToPage), userInfo: nil, repeats: false)//2 sn gecikmeyle bir önceki sayfaya dö
-                    }else{//kayıtlı kullanıcı var ama hesap doğrulanmadı.
-                        Alert.createAlert(title: "Hatırlatma", message: "Lütfen hesabınızı doğrulayınız!", view: self)
-                    }
-                }else{//Kullanıcı kayıt olmamış böyle bir kullanıcı yok
-                    Alert.createAlert(title: "Hata", message: "Giriş başarısız. Lütfen tekrar deneyiniz", view: self)
-                }
-                self.loginActivityIndicator.stopAnimating()
-            }
-            
-        }else{
-            Alert.createAlert(title: "Hatırlatma", message: "Lütfen gerekli alanları doldurunuz !", view: self)
-        }
         
+        if Connectivity.isInternetAvailable(){
+            if emailTextField.text != "" && passwordTextField.text != ""{
+                loginActivityIndicator.startAnimating()
+                
+                UserViewModel.loginUserWith(email: emailTextField.text!, password: passwordTextField.text!){ [self] error,isEmailVerified in
+
+                    if error == nil{//kayıtlı kullanıcı var
+                        if isEmailVerified{//kayıtlı kullanıcı var ve hesap doğrulandı.
+                            print("GİRİŞ BAŞARILI")
+                            UserViewModel.downloadUserFromFirestore(email: self.emailTextField.text!)//kullanıcıya ait verileri indir.
+                            Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(turnBackToPage), userInfo: nil, repeats: false)//2 sn gecikmeyle bir önceki sayfaya dö
+                        }else{//kayıtlı kullanıcı var ama hesap doğrulanmadı.
+                            Alert.createAlert(title: "Hatırlatma", message: "Lütfen hesabınızı doğrulayınız!", view: self)
+                        }
+                    }else{//Kullanıcı kayıt olmamış böyle bir kullanıcı yok
+                        Alert.createAlert(title: "Hata", message: "Giriş başarısız. Lütfen tekrar deneyiniz", view: self)
+                    }
+                    self.loginActivityIndicator.stopAnimating()
+                }
+                
+            }else{
+                Alert.createAlert(title: "Hatırlatma", message: "Lütfen gerekli alanları doldurunuz !", view: self)
+            }
+        }else{
+            Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
+
+        }
     }
-    
 }
 
 extension WelcomeViewController{

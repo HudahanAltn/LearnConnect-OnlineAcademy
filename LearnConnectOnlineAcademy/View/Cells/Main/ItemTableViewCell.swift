@@ -17,6 +17,7 @@ class ItemTableViewCell: UITableViewCell {
     @IBOutlet weak var itemPriceLabel: UILabel!
     @IBOutlet weak var itemActivityIndicator: UIActivityIndicatorView!
     
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -70,6 +71,25 @@ class ItemTableViewCell: UITableViewCell {
             self.itemOwnerLabel.text = user.fullName
         }
         
+        ReviewViewModel().downloadReviewsFromFirebase(itemID: item.id){
+            reviews in
+            
+            var totalPoint = 0
+            for review in reviews{
+                totalPoint += Int(review.point!)!
+                
+            }
+            if reviews.count != 0 {
+                self.itemPointLabel.text = String(format: "%.1f", Double(totalPoint) / Double(reviews.count))
+                self.itemPointProgressView.setProgress(Float(Double(totalPoint) / Double(reviews.count))/5, animated: true)
+                
+            }else{
+                self.itemPointLabel.text = "0.0"
+                self.itemPointProgressView.setProgress(0, animated: true)
+                
+            }
+           
+        }
         
     }
 

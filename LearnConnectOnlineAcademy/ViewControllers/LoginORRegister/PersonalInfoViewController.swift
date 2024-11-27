@@ -68,26 +68,31 @@ class PersonalInfoViewController: UIViewController {
         let now = CFAbsoluteTimeGetCurrent()
         guard now >= lastTapTime + minimumTapInterval else { return }
         lastTapTime = now
-        
-        if nameCheck && lastNameCheck && citizienCheck && phoneCheck && birthCheck && adressCheck{//ilgili alanlar dolduruldu
-            //geçici kişi yarat
-            let user = User(email: nil,
-                            firstName: userNameTextField.text!,
-                            lastName: userLastNameTextField.text!,
-                            fullAdres: userAdressTextField.text!,
-                            turkishCitizenshipId: userCitizienTextField.text!,
-                            phoneNumber: userPhoneNumTextField.text!,
-                            profilePicture: nil,
-                            dateOfBirth: userDateOfBirthTextField.text!)
-           
-            //bir sonraki sayfaya nesneyi aktar ve geçiş yap
-            let accountInfoVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "AccountInfoVC") as! AccountInfoViewController
-            accountInfoVC.user = user
-            navigationController?.pushViewController(accountInfoVC, animated: true)
-            
+        if Connectivity.isInternetAvailable(){
+            if nameCheck && lastNameCheck && citizienCheck && phoneCheck && birthCheck && adressCheck{//ilgili alanlar dolduruldu
+                //geçici kişi yarat
+                let user = User(email: nil,
+                                firstName: userNameTextField.text!,
+                                lastName: userLastNameTextField.text!,
+                                fullAdres: userAdressTextField.text!,
+                                turkishCitizenshipId: userCitizienTextField.text!,
+                                phoneNumber: userPhoneNumTextField.text!,
+                                profilePicture: nil,
+                                dateOfBirth: userDateOfBirthTextField.text!)
+               
+                //bir sonraki sayfaya nesneyi aktar ve geçiş yap
+                let accountInfoVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "AccountInfoVC") as! AccountInfoViewController
+                accountInfoVC.user = user
+                navigationController?.pushViewController(accountInfoVC, animated: true)
+                
+            }else{
+                Alert.createAlert(title: "Hatırlatma", message: "Lütfen Gerekli Alanları Doldurunuz !", view: self)
+            }
         }else{
-            Alert.createAlert(title: "Hatırlatma", message: "Lütfen Gerekli Alanları Doldurunuz !", view: self)
+            Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
+
         }
+        
     }
     
 }

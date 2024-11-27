@@ -67,8 +67,8 @@ class ProfileViewController: UIViewController {
 
         if Connectivity.isInternetAvailable(){
             switch sender.titleLabel?.text! {
-            case "    Satın Alma Geçmişi":
-                performSegue(withIdentifier: "profileToPurchase", sender: nil)
+            case "    İndirilenler":
+                performSegue(withIdentifier: "profileToDownloaded", sender: nil)
             case "    Ürün Ekle":
                 performSegue(withIdentifier: "profileToAddItem", sender: nil)
             case "    Beğeni Listem":
@@ -80,7 +80,7 @@ class ProfileViewController: UIViewController {
             case "    Bize Ulaşın":
                 print("bize ulaşın")
             case "   Çıkış Yap":
-                createAction(title: "Oturumu Kapat", message: "Çıkış yapmak istiyor musunuz?", view: self)
+                createLogOutAction(title: "Oturumu Kapat", message: "Çıkış yapmak istiyor musunuz?", view: self)
                 print("çıkışa basıldı")
             default:
                 print("ayarlar basıldı")
@@ -159,20 +159,42 @@ extension ProfileViewController{
             
     }
 
-     func createAction(title:String,message:String,view:UIViewController){
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
-         let OKButton = UIAlertAction(title: "Çıkış Yap", style: .destructive){  _ in
-             self.logOutUser()
+     func createLogOutAction(title:String,message:String,view:UIViewController){
+         if Connectivity.isInternetAvailable(){
+             let alertController = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
+              let OKButton = UIAlertAction(title: "Çıkış Yap", style: .destructive){  _ in
+                  
+                  self.clearSavedVideos()
+                  self.logOutUser()
+              }
+              let cancelButton = UIAlertAction(title: "İptal", style: .cancel){ _ in
+                  print("iptal basıldı")
+              }
+             alertController.addAction(OKButton)
+             alertController.addAction(cancelButton)
+             view.present(alertController, animated: true)
+         }else{
+             Alert.createAlert(title: Alert.noConnectionTitle, message: "Çıkış yapabilmek için internet bağlantısı gerekmektedir!", view: self)
          }
-         let cancelButton = UIAlertAction(title: "İptal", style: .cancel){ _ in
-             print("iptal basıldı")
-         }
-        alertController.addAction(OKButton)
-        alertController.addAction(cancelButton)
-        view.present(alertController, animated: true)
+        
     }
     
-    
+    func clearSavedVideos(){
+        let context = appDelegate.persistentContainer.viewContext
+
+        var downloadedVideoList:[Video] = [Video]()
+        
+        do{
+            downloadedVideoList = try context.fetch(Video.fetchRequest())
+        }catch{
+            print("getirme hatası!")
+        }
+        
+        for downloadedVideo in downloadedVideoList{
+            context.delete(downloadedVideo)
+        }
+        appDelegate.saveContext()
+    }
 }
 
 //MARK: - UI Helper

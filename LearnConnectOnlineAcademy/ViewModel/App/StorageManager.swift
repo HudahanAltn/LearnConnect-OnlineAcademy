@@ -11,9 +11,13 @@ import UIKit
 
 let storage = Storage.storage()
 
+
+extension Notification.Name{
+    static let downloadInfo = Notification.Name("downloadInfo")
+}
 class StorageManager{
     
-//MARK: - Firestore Image Upload
+    //MARK: - Firestore Image Upload
     
     //firebase e resim kayıt temel fonkisonudur.her kayıt gerçekleşince bize bu fonksiyon tek bir resim için tek bir link verecek.bu linki daha sonra resim download etmede kullanacaz.
     func saveImageInFirebase(imageData:Data,fileName:String,completion:@escaping(_ imageLink:String?)->Void){
@@ -70,7 +74,8 @@ class StorageManager{
         
     }
     
-//MARK: - Firestore Video Upload
+    
+    //MARK: - Firestore Video Upload
     func saveVideoInFirebase(videoData:Data,fileName:String,completion:@escaping(_ videoLink:String?)->Void){
         
         var task:StorageUploadTask!
@@ -125,7 +130,7 @@ class StorageManager{
         }
     }
     
-//MARK: - Firebase User Profile
+    //MARK: - Firebase User Profile
     
     //Kullanıcının profil fotoğrafını storage'e yüklemesi için oluşturulan fonksiyon.
     func uploadProfilePictureImages(images:[UIImage?],userId:String,completion:@escaping (_ imageLinks:[String])->Void){
@@ -170,8 +175,20 @@ class StorageManager{
         }
         
     }
-
-//MARK: - Firestore Image Download
+    
+    func deleteProfileImage(imageUrl:String,completion:@escaping(_ error:Error?)->Void){// profilini kullanıcı düzenlerken yeni fotoğraf eklemek isterse önceki storage'den silinmelidir.
+        let storageRef = storage.reference()
+        let imageRef = storageRef.child(imageUrl)
+        imageRef.delete { error in
+            if let error = error {
+                completion(error)//silme başarısız
+            } else {
+                completion(error)//silme başarılı
+            }
+        }
+    }
+    
+    //MARK: - Firestore Image Download
     
     func downloadImage(imageUrl: String, completion: @escaping (_ image:UIImage?) -> Void) {
         
@@ -197,11 +214,10 @@ class StorageManager{
             }
         }.resume()
     }
-//MARK: - Firestore download videos
-    
+    //MARK: - Firestore download videos
 
     func fetchVideoNames(itemId: String, completion: @escaping ([String]) -> Void) {
-
+        
         let folderPath = "ItemVideos/" + itemId + "/"
         let folderRef = Storage.storage().reference().child(folderPath)
         
@@ -218,17 +234,52 @@ class StorageManager{
             completion(videoNames)
         }
     }
-  
-
-    func deleteProfileImage(imageUrl:String,completion:@escaping(_ error:Error?)->Void){// profilini kullanıcı düzenlerken yeni fotoğraf eklemek isterse önceki storage'den silinmelidir.
-        let storageRef = storage.reference()
-        let imageRef = storageRef.child(imageUrl)
-        imageRef.delete { error in
-          if let error = error {
-              completion(error)//silme başarısız
-          } else {
-              completion(error)//silme başarılı
-          }
+    
+    func downloadAndSaveVideo(videoURL: String, fileName: String, completion: @escaping (URL?) -> Void) {
+        let storageRef = Storage.storage().reference(forURL: videoURL)
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName + ".mov")
+        
+        let downloadTask = storageRef.write(toFile: tempURL) { url, error in
+            if let error = error {
+                print("Video indirme hatası:")
+                completion(nil)
+                return
+            }
+         
+            if let savedURL = self.saveVideoToDocuments(tempURL: tempURL, fileName: fileName) {
+                completion(savedURL)
+            } else {
+                completion(nil)
+            }
+        }
+        
+        downloadTask.observe(.progress) { snapshot in
+            guard let progress = snapshot.progress else { return }
+            let totalBytes = progress.totalUnitCount
+            let bytesTransferred = progress.completedUnitCount
+            let progressValue = Float(bytesTransferred) / Float(totalBytes)
+            
+            NotificationCenter.default.post(name: .downloadInfo, object: nil,userInfo: ["remainTime": progressValue])
+        }
+        
+    }
+    
+    func saveVideoToDocuments(tempURL: URL, fileName: String) -> URL? {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let destinationURL = documentsDirectory.appendingPathComponent(fileName + ".mov")
+        
+        do {
+            if FileManager.default.fileExists(atPath: destinationURL.path) {
+                try FileManager.default.removeItem(at: destinationURL)
+            }
+            
+            try FileManager.default.moveItem(at: tempURL, to: destinationURL)
+            print("Video başarıyla kaydedildi: \(destinationURL)")
+            return destinationURL
+        } catch {
+            print("Video kaydetme hatası: \(error.localizedDescription)")
+            return nil
         }
     }
+    
 }

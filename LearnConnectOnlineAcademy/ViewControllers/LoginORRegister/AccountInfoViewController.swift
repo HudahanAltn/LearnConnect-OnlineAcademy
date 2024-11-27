@@ -54,6 +54,7 @@ class AccountInfoViewController: UIViewController {
         
         navigationItem.title = "Giriş Bilgileri"
         navigationItem.hidesBackButton = false
+        navigationItem.titleView?.tintColor = .systemGreen
         tabBarItem.isAccessibilityElement = false
   
         navigationItem.rightBarButtonItems = [UIBarButtonItem(image: UIImage(systemName: "questionmark"), style: .plain, target: self, action: #selector(self.showInfo))]
@@ -102,61 +103,66 @@ class AccountInfoViewController: UIViewController {
         guard now >= lastTapTime + minimumTapInterval else { return }
         lastTapTime = now
         
-        if userProfileImageView.image != UIImage(systemName: "person.circle") {
-            if accountDependency.checkEmailDependencies(email: emailTextField){
-                if accountDependency.checkPasswordDependencies(password: passwordTextField){
-                        if accountInfoHelper.isGmail(mail: emailTextField.text!) {
-                            if accountInfoHelper.isPasswordSecure(sifre: passwordTextField.text!) {
-                            
-                                accountRegisterActivityIndicator.startAnimating()
-                                UserViewModel.registerUserWith(email: emailTextField.text!, password: passwordTextField.text!){
-                                    createUserError,sendVerificationError in
-        
-                                    if createUserError == nil{
-                                        if sendVerificationError == nil{
-                                            //kayıt başarılı firestore'a bilgileri geç
-        
-                                            let user1 = User(
-                                                            email: self.emailTextField!.text!,
-                                                            firstName: self.user!.firstName,
-                                                            lastName: self.user!.lastName,
-                                                            fullAdres: self.user!.fullAdress,
-                                                            turkishCitizenshipId: self.user!.turkishCitizenshipId,
-                                                            phoneNumber: self.user!.phoneNumber,
-                                                            profilePicture: "",
-                                                            dateOfBirth: self.user!.dateOfBirth)
-        
-                                            StorageManager().uploadProfilePictureImages(images: [self.userProfileImageView.image], userId: user1.email!){
-                                                imageLinks in
-        
-                                                user1.profilePicture = imageLinks[0]
-        
-                                                UserViewModel.saveUserToFirestore(user: user1)//firestore kayıt et
-                                                self.accountRegisterActivityIndicator.stopAnimating()
-                                                self.successRegistter()
+        if Connectivity.isInternetAvailable(){
+            if userProfileImageView.image != UIImage(systemName: "person.circle") {
+                if accountDependency.checkEmailDependencies(email: emailTextField){
+                    if accountDependency.checkPasswordDependencies(password: passwordTextField){
+                            if accountInfoHelper.isGmail(mail: emailTextField.text!) {
+                                if accountInfoHelper.isPasswordSecure(sifre: passwordTextField.text!) {
+                                
+                                    accountRegisterActivityIndicator.startAnimating()
+                                    UserViewModel.registerUserWith(email: emailTextField.text!, password: passwordTextField.text!){
+                                        createUserError,sendVerificationError in
+            
+                                        if createUserError == nil{
+                                            if sendVerificationError == nil{
+                                                //kayıt başarılı firestore'a bilgileri geç
+            
+                                                let user1 = User(
+                                                                email: self.emailTextField!.text!,
+                                                                firstName: self.user!.firstName,
+                                                                lastName: self.user!.lastName,
+                                                                fullAdres: self.user!.fullAdress,
+                                                                turkishCitizenshipId: self.user!.turkishCitizenshipId,
+                                                                phoneNumber: self.user!.phoneNumber,
+                                                                profilePicture: "",
+                                                                dateOfBirth: self.user!.dateOfBirth)
+            
+                                                StorageManager().uploadProfilePictureImages(images: [self.userProfileImageView.image], userId: user1.email!){
+                                                    imageLinks in
+            
+                                                    user1.profilePicture = imageLinks[0]
+            
+                                                    UserViewModel.saveUserToFirestore(user: user1)//firestore kayıt et
+                                                    self.accountRegisterActivityIndicator.stopAnimating()
+                                                    self.successRegistter()
+                                                }
+                                            }else{
+                                                Alert.createAlert(title: "Hata", message: "Kullanıcı kaydı başarılı fakat doğrulama maili gönderilmesi başarısız!", view: self)
                                             }
                                         }else{
-                                            Alert.createAlert(title: "Hata", message: "Kullanıcı kaydı başarılı fakat doğrulama maili gönderilmesi başarısız!", view: self)
+                                            Alert.createAlert(title: "Hata", message: "Kullanıcı kaydı başarısız!", view: self)
                                         }
-                                    }else{
-                                        Alert.createAlert(title: "Hata", message: "Kullanıcı kaydı başarısız!", view: self)
-                                    }
-                                }//UserVMSOn
+                                    }//UserVMSOn
+                                }else{
+                                    Alert.createAlert(title: "Hata", message: "Girilen şifre geçerli güvenlik önlemlerini karşılamıyor!", view: self)
+                                }
                             }else{
-                                Alert.createAlert(title: "Hata", message: "Girilen şifre geçerli güvenlik önlemlerini karşılamıyor!", view: self)
+                                Alert.createAlert(title: "Hata", message: "Girilen mail hesabı bir gmail değildir!", view: self)
                             }
-                        }else{
-                            Alert.createAlert(title: "Hata", message: "Girilen mail hesabı bir gmail değildir!", view: self)
-                        }
+                    }else{
+                        Alert.createAlert(title: "Hatırlatma", message: "Lütfen en az 8 haneli şifre belirleyiniz!", view: self)
+                    }
                 }else{
-                    Alert.createAlert(title: "Hatırlatma", message: "Lütfen en az 8 haneli şifre belirleyiniz!", view: self)
+                    Alert.createAlert(title: "Hatırlatma", message: "Lütfen mail adresinizi giriniz!", view: self)
                 }
             }else{
-                Alert.createAlert(title: "Hatırlatma", message: "Lütfen mail adresinizi giriniz!", view: self)
+                Alert.createAlert(title: "Hatırlatma", message: "Lütfen bir resim ekleyiniz!", view: self)
             }
         }else{
-            Alert.createAlert(title: "Hatırlatma", message: "Lütfen bir resim ekleyiniz!", view: self)
+            Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
         }
+        
     }
     
   

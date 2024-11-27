@@ -115,7 +115,7 @@ extension ItemsViewController:EmptyDataSetSource,EmptyDataSetDelegate{
     
     func title(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
         
-        return NSAttributedString(string: "Görüntülenecek ürün bulunamadı!")
+        return NSAttributedString(string: "Görüntülenecek kurs bulunamadı!")
     }
     
     func image(forEmptyDataSet scrollView: UIScrollView) -> UIImage? {

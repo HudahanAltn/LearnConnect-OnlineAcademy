@@ -9,7 +9,6 @@ import UIKit
 
 class ItemViewController: UIViewController {
 
-    
     @IBOutlet weak var itemImageView: UIImageView!
     @IBOutlet weak var itemNameLabel: UILabel!
     @IBOutlet weak var itemOwnerLabel: UILabel!
@@ -21,24 +20,30 @@ class ItemViewController: UIViewController {
     @IBOutlet weak var itemDescriptionLabel: UITextView!
     @IBOutlet weak var itemContentTableView: UITableView!
     
+    
     var rightBarButtonItem:UIBarButtonItem!
     var item:Item?
+    
     var itemVM = ItemViewModel()
     var userVM = UserViewModel()
     var cartVM = CartViewModel()
     var likedVM = LikedViewModel()
+    var reviewVM = ReviewViewModel()
     
     var liked:Liked!
     var isItemLikedBefore:Bool = false
+    var isItemPurchasedBefore:Bool = false
     
     var itemContent:[String] = [String]()
     
+    var reviewContent:[Review] = [Review]()
     
     private let minimumTapInterval = CFTimeInterval(4)
     private var lastTapTime = CFAbsoluteTime(0)
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        loadPurchasedItem()
         profileActiviyIndicator.hidesWhenStopped = true
         profileActiviyIndicator.startAnimating()
         itemContentTableView.dataSource = self
@@ -49,7 +54,7 @@ class ItemViewController: UIViewController {
  
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        
+        loadPurchasedItem()
         if Connectivity.isInternetAvailable(){
             setItemContent()
             loadLikedFromFirebase(loggedUser: UserViewModel.currentUser())
@@ -59,19 +64,52 @@ class ItemViewController: UIViewController {
         }
         
     }
-
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == "itemToReview"{
+            
+            let itemReviewVC = segue.destination as! ItemReviewsViewController
+            
+            itemReviewVC.item = sender as? Item
+            
+        }
+    }
     @IBAction func addCartButtonPressed(_ sender: Any) {
     
         let now = CFAbsoluteTimeGetCurrent()
         guard now >= lastTapTime + minimumTapInterval else { return }
         lastTapTime = now
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        if UserViewModel.currentUser()?.email != item?.dealerMail{
-            checkLoginStatusForItemVC()
+        if Connectivity.isInternetAvailable(){
+            if UserViewModel.currentUser()?.email != item?.dealerMail{
+                print("lo")
+                if isItemLikedBefore{
+                    Alert.createAlert(title: "Bilgilendirme", message: "Kendi ürününüzü sepete ekleyemezsiniz", view: self)
+                }else{
+                    checkLoginStatusForItemVC()
+                }
+            }else{
+                Alert.createAlert(title: "Bilgilendirme", message: "Kendi ürününüzü sepete ekleyemezsiniz", view: self)
+            }
         }else{
-            Alert.createAlert(title: "Bilgilendirme", message: "Kendi Ürününüzü Sepete Ekleyemezsiniz", view: self)
+            Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
+
         }
-       
+    }
+    
+    func loadPurchasedItem(){
+        itemVM.downloadPurchasedItems([item!.id!]){ allItems in
+            if allItems.isEmpty{
+                self.isItemPurchasedBefore = false
+            }else{
+                self.isItemPurchasedBefore = true
+            }
+        }
+    }
+    @IBAction func reviewButtonPressed(_ sender: Any) {
+        
+        performSegue(withIdentifier: "itemToReview", sender: item)
     }
     
     
@@ -96,7 +134,7 @@ extension ItemViewController{
                     }else {
                         cart!.itemIds.append(self.item!.id)
                         self.updateCart(cart:cart!,withValues:[FirebaseConstants().kITEMIDS:cart!.itemIds])
-                        self.tabBarController!.tabBar.items![1].badgeValue = "\(cart!.itemIds.count)"
+                        self.tabBarController!.tabBar.items![2].badgeValue = "\(cart!.itemIds.count)"
                     }
                 }
             }else{
@@ -120,8 +158,6 @@ extension ItemViewController{
             itemNameLabel.text = item.name
             itemOwnerLabel.text = "sd"
             itemOwnerProfileImageView.image = UIImage(named: "person.circle")
-            itemPoint.text = "4.5"
-            itemPointProgressView.progress = 0.5
             itemPriceLabel.text = "₺\(item.price!)"
             itemDescriptionLabel.text = item.description
             
@@ -155,6 +191,14 @@ extension ItemViewController{
 
             }
             setHeartBarButtonItem()
+            
+            reviewVM.downloadReviewsFromFirebase(itemID: item.id){
+                reviews in
+                
+                self.reviewContent = reviews
+
+                self.setReview()
+            }
         }
     }
     
@@ -299,36 +343,41 @@ extension ItemViewController {
         guard now >= lastTapTime + minimumTapInterval else { return }
         lastTapTime = now
         
-        let loggedUser = UserViewModel.currentUser()
-        
-        if loggedUser?.fullName != item?.dealerMail{
-            if isItemLikedBefore{//daha önceden beğenildi ise yeniden tıklamada beğeniyi kaldır
-                setHeartNoFill()
-                isItemLikedBefore = false
-                loadLikedFromFirebase(loggedUser: loggedUser)
-                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2)){
-                    self.removeItemFromLiked(itemId: self.item!.id)//sepetten kaldır
-                    self.updateLiked(liked: self.liked, withValues: [FirebaseConstants().kITEMIDS:self.liked!.itemIds])
-                }
-            }else{
-                isItemLikedBefore = true
-                setHeartFill()
-                likedVM.downloadLikedFromFirestore(loggedUser!.email!){ [self] liked in
-                    if liked == nil {
-                        likedVM.createNewLiked(item: item!,ownerId: loggedUser!.email!)
-                        setHeartFill()
-                        self.isItemLikedBefore = true
-                    }else {
-                        liked!.itemIds.append(self.item!.id)
-                        self.updateLiked(liked:liked!,withValues:[FirebaseConstants().kITEMIDS:liked!.itemIds])
-                        setHeartFill()
-                        self.isItemLikedBefore = true
+        if Connectivity.isInternetAvailable(){
+            let loggedUser = UserViewModel.currentUser()
+            
+            if loggedUser?.email != item?.dealerMail{
+                if isItemLikedBefore{//daha önceden beğenildi ise yeniden tıklamada beğeniyi kaldır
+                    setHeartNoFill()
+                    isItemLikedBefore = false
+                    loadLikedFromFirebase(loggedUser: loggedUser)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(2)){
+                        self.removeItemFromLiked(itemId: self.item!.id)//sepetten kaldır
+                        self.updateLiked(liked: self.liked, withValues: [FirebaseConstants().kITEMIDS:self.liked!.itemIds])
+                    }
+                }else{
+                    isItemLikedBefore = true
+                    setHeartFill()
+                    likedVM.downloadLikedFromFirestore(loggedUser!.email!){ [self] liked in
+                        if liked == nil {
+                            likedVM.createNewLiked(item: item!,ownerId: loggedUser!.email!)
+                            setHeartFill()
+                            self.isItemLikedBefore = true
+                        }else {
+                            liked!.itemIds.append(self.item!.id)
+                            self.updateLiked(liked:liked!,withValues:[FirebaseConstants().kITEMIDS:liked!.itemIds])
+                            setHeartFill()
+                            self.isItemLikedBefore = true
+                        }
                     }
                 }
+            }else{
+                Alert.createAlert(title: "Bilgilendirme", message: "Satışa sunduğunuz ürününüzü beğeni listenize ekleyemezsiniz!", view: self)
             }
         }else{
-            Alert.createAlert(title: "Bilgilendirme", message: "Satışa sunduğunuz ürününüzü beğeni listenize ekleyemezsiniz!", view: self)
+            Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
         }
+        
     }
     
     @objc func dismissFullScreenImage(_ sender: UITapGestureRecognizer) {
@@ -343,5 +392,29 @@ extension ItemViewController {
     
     @objc func turnBackToPage(){
         self.navigationController?.popViewController(animated: true)
+    }
+}
+
+extension ItemViewController{
+    
+    func setReview(){
+        
+        var totalPoint = 0
+        for review in reviewContent{
+            totalPoint += Int(review.point!)!
+            
+        }
+        
+        if reviewContent.count != 0 {
+            itemPoint.text = String(format: "%.1f", Double(totalPoint) / Double(reviewContent.count))
+            itemPointProgressView.setProgress(Float(Double(totalPoint) / Double(reviewContent.count))/5, animated: true)
+            
+        }else{
+            itemPoint.text = "0.0"
+            itemPointProgressView.setProgress(0.0, animated: true)
+            
+        }
+       
+
     }
 }

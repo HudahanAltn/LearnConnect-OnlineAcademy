@@ -9,9 +9,11 @@ import UIKit
 
 class DownloadedVideosTableViewCell: UITableViewCell {
 
+    @IBOutlet weak var videoNameLabel: UILabel!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        self.backgroundColor = UIColor.white.withAlphaComponent(0.8)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

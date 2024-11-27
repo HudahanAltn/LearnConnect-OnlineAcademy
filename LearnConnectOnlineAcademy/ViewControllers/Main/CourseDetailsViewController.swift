@@ -8,7 +8,9 @@
 import UIKit
 import AVFoundation
 import AVKit
-
+import CoreData
+import EmptyDataSet_Swift
+let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
 class CourseDetailsViewController: UIViewController {
 
@@ -29,43 +31,8 @@ class CourseDetailsViewController: UIViewController {
                 }
             }
         }
-    
-    
-    @IBOutlet weak var mainVideoPlayerView: UIView!
-    @IBOutlet weak var mainVidePlayerViewHeight: NSLayoutConstraint!
-    @IBOutlet weak var videoPlayerView: UIView!
-    @IBOutlet weak var playerButtonsStackView: UIStackView!
-    @IBOutlet weak var video10secBack: UIImageView!{
-        didSet {
-            self.video10secBack.isUserInteractionEnabled = true
-            self.video10secBack.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTap10SecBack)))
-        }
-    }
-    @IBOutlet weak var videoPlayStop: UIImageView!{
-        didSet {
-            self.videoPlayStop.isUserInteractionEnabled = true
-            self.videoPlayStop.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapPlayPause)))
-        }
-    }
-    @IBOutlet weak var video10secForward: UIImageView!{
-        didSet {
-            self.video10secForward.isUserInteractionEnabled = true
-            self.video10secForward.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTap10SecNext)))
-        }
-    }
-    @IBOutlet weak var videoCurrentTimeLabel: UILabel!
-    @IBOutlet weak var videoSlider: UISlider!{
-        didSet {
-            self.videoSlider.addTarget(self, action: #selector(onTapToSlide), for: .valueChanged)
-        }
-    }
-    @IBOutlet weak var videoTotalTimeLabel: UILabel!
-    @IBOutlet weak var fullScreen: UIImageView!{
-        didSet {
-            self.fullScreen.isUserInteractionEnabled = true
-            self.fullScreen.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(onTapToggleScreen)))
-        }
-    }
+    @IBOutlet weak var addReviewBarButton: UIBarButtonItem!
+    @IBOutlet weak var downloadProgressView: UIProgressView!
     @IBOutlet weak var courseVideoNameLabel: UILabel!
     @IBOutlet weak var courseListTableView: UITableView!
     
@@ -79,53 +46,77 @@ class CourseDetailsViewController: UIViewController {
     private var isThumbSeek : Bool = false
     
 
+    let context = appDelegate.persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
         courseListTableView.delegate = self
         courseListTableView.dataSource = self
-        videoSlider.value = 0
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(self.turnBackToPage))
-        self.navigationItem.title = "\(course!.name!)"
-        // Do any additional setup after loading the view.
+        courseListTableView.emptyDataSetSource = self
+        courseListTableView.emptyDataSetDelegate = self
+        courseListTableView.separatorStyle = .none
+        courseVideoNameLabel.text = "\(course!.name!)"
         courseVideoList = (course?.videoLinks)!
+        downloadProgressView.alpha = 0.0
+        downloadProgressView.setProgress(0.0, animated: true)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(self.turnBackToPage))
         videoPlayer?.addObserver(self, forKeyPath: "timeControlStatus", options: [.new, .initial], context: nil)
-
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(self.videoRemaining(notification:)), name:.downloadInfo, object: nil)
       
     }
-   
     
-    override func willTransition(to newCollection: UITraitCollection, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.willTransition(to: newCollection, with: coordinator)
-        guard let windowInterface = self.windowInterface else { return }
-        if windowInterface.isPortrait ==  true {
-            self.mainVidePlayerViewHeight.constant = 300
-        } else {
-            self.mainVidePlayerViewHeight.constant = self.view.layer.bounds.width
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == "courseDetailsToReview"{
+            let vc = segue.destination as! ReviewViewController
+            vc.course = course
         }
-        print(self.mainVidePlayerViewHeight.constant)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
-            self.videoPlayerLayer?.frame = self.mainVideoPlayerView.bounds
-        })
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if UserViewModel.currentUser() == nil{
+            self.navigationItem.title = "Learn Connect"
+            addReviewBarButton.isHidden = true
+            courseVideoNameLabel.text = ""
+            courseVideoList.removeAll()
+            courseListTableView.reloadData()
+        }else{
+            addReviewBarButton.isHidden = false
+            if Connectivity.isInternetAvailable(){
+                courseListTableView.reloadData()
+            }else{
+                courseVideoList.removeAll()
+                courseListTableView.reloadData()
+                Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
+            }
+        }
+        
+    }
+    
+    @IBAction func addCommentButtonPressed(_ sender: Any) {
+        if Connectivity.isInternetAvailable(){
+            performSegue(withIdentifier: "courseDetailsToReview", sender: course)
+        }else{
+            Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
+        }
+    }
+    
 
 }
-//MARK: - UITableview Protocols
-extension CourseDetailsViewController:UITableViewDelegate,UITableViewDataSource{
+
+//MARK: - UITableviewDelegate
+extension CourseDetailsViewController:UITableViewDelegate{
     
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return DeviceHelper.getSafeAreaSize()!.height/15
+        return DeviceHelper.getSafeAreaSize()!.height/10
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         tableView.deselectRow(at: indexPath, animated: true)
-    
-        print("didselectiçi : \(courseVideoList[indexPath.row])")
-//        setVideoPlayer(videoURL: courseVideoList[indexPath.row])
-        //load video
-        //şimdilik AVPLaycontroller kullan
+            
         let player = AVPlayer(url: URL(string: courseVideoList[indexPath.row])!)
         if let lastTime = lastPlaybackTime {
                     player.seek(to: lastTime, toleranceBefore: .zero, toleranceAfter: .zero)
@@ -143,188 +134,109 @@ extension CourseDetailsViewController:UITableViewDelegate,UITableViewDataSource{
                     self?.lastPlaybackTime = currentTime // Her bir saniyede oynatma zamanını güncelle.
                 }
     }
-    @objc func playerDidFinishPlaying(notification: Notification) {
-           lastPlaybackTime = nil // Video sona erdiğinde oynatma zamanını sıfırla.
-    }
- 
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return courseVideoList.count
-    }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+      
+        let fetchRequest:NSFetchRequest<Video> = Video.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "videoName == %@", extractString(from: courseVideoList[indexPath.row])!)
+        var videoList:[Video] = [Video]()
         
-        let cell = tableView.dequeueReusableCell(withIdentifier:"videoCell",for:indexPath) as! CourseDetailsTableViewCell
-        
-        cell.courseVideoNameLabel.text = "1)\(extractString(from: courseVideoList[indexPath.row])!)"
-        return cell
-    }
-    
-
-}
-
-//MARK: - Video Player Functions
-extension CourseDetailsViewController{
-    
-    private func setVideoPlayer(videoURL:String?){
-        guard let url = URL(string: videoURL!) else { return}
-        
-        if self.videoPlayer == nil{
-            self.videoPlayer = AVPlayer(url: url)
-            self.videoPlayerLayer = AVPlayerLayer(player: videoPlayer)
-            self.videoPlayerLayer?.videoGravity = .resizeAspectFill
-            self.videoPlayerLayer?.frame = self.mainVideoPlayerView.bounds
-            self.videoPlayerLayer?.addSublayer(self.videoPlayerView.layer)
+        do{
+            videoList = try context.fetch(fetchRequest)
+        }catch{
             
-            if let playerLayer = self.videoPlayerLayer{
-                self.mainVideoPlayerView.layer.addSublayer(playerLayer)
+        }
+        if videoList.count > 0{
+            return nil
+        }else{
+            let download = UIContextualAction(style: .normal, title: ""){
+                (action, view, completionHandler) in
+                tableView.setEditing(false, animated: true)
+                completionHandler(true)
+                StorageManager().downloadAndSaveVideo(videoURL: self.courseVideoList[indexPath.row] , fileName:self.extractString(from: self.courseVideoList[indexPath.row])! ) { savedURL in
+                      
+                      if let savedURL = savedURL {
+                          let video = Video(context: self.context)
+                          video.videoName = self.extractString(from: self.courseVideoList[indexPath.row])!
+                          video.savedVideoURL = savedURL.absoluteString
+                          appDelegate.saveContext()
+                          tableView.reloadData()
+                          Alert.createAlert(title: "Başarılı", message: "\(self.extractString(from: self.courseVideoList[indexPath.row])!) indirildi", view: self)
+                      }else {
+                          Alert.createAlert(title: "Hata", message: "Video indirme başarısız oldu!", view: self)
+
+                      }
+                  }
             }
-            
-            self.videoPlayer?.play()
-            self.videoPlayStop.image = UIImage(systemName: "pause.circle")
-            self.video10secBack.alpha = 0
-            self.video10secForward.alpha = 0
-        }
-        setObserverToPlayer()
-    }
-
-    private var windowInterface : UIInterfaceOrientation? {
-        return self.view.window?.windowScene?.interfaceOrientation
-    }
-    
-    private func setObserverToPlayer() {
-        let interval = CMTime(seconds: 0.3, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-        timeObserver = videoPlayer?.addPeriodicTimeObserver(forInterval: interval, queue: DispatchQueue.main, using: { elapsed in
-            self.updatePlayerTime()
-        })
-    }
-    
-    private func updatePlayerTime() {
-        guard let currentTime = self.videoPlayer?.currentTime() else { return }
-        guard let duration = self.videoPlayer?.currentItem?.duration else { return }
-        
-        let currentTimeInSecond = CMTimeGetSeconds(currentTime)
-        let durationTimeInSecond = CMTimeGetSeconds(duration)
-        
-        if self.isThumbSeek == false {
-            self.videoSlider.value = Float(currentTimeInSecond/durationTimeInSecond)
+            download.backgroundColor = .systemGreen 
+            download.image = UIImage(systemName: "arrow.down.circle.fill")
+            var configuraiton = UISwipeActionsConfiguration(actions: [download])
+            configuraiton.performsFirstActionWithFullSwipe = false // Full swipe'da da aksiyon yapılmasını istemiyorsanız
+            return configuraiton
         }
         
-        let value = Float64(self.videoSlider.value) * CMTimeGetSeconds(duration)
-        
-        var hours = value / 3600
-        var mins =  (value / 60).truncatingRemainder(dividingBy: 60)
-        var secs = value.truncatingRemainder(dividingBy: 60)
-        var timeformatter = NumberFormatter()
-        timeformatter.minimumIntegerDigits = 2
-        timeformatter.minimumFractionDigits = 0
-        timeformatter.roundingMode = .down
-        guard let hoursStr = timeformatter.string(from: NSNumber(value: hours)), let minsStr = timeformatter.string(from: NSNumber(value: mins)), let secsStr = timeformatter.string(from: NSNumber(value: secs)) else {
-            return
-        }
-        self.videoCurrentTimeLabel.text = "\(hoursStr):\(minsStr):\(secsStr)"
-        
-        hours = durationTimeInSecond / 3600
-        mins = (durationTimeInSecond / 60).truncatingRemainder(dividingBy: 60)
-        secs = durationTimeInSecond.truncatingRemainder(dividingBy: 60)
-        timeformatter = NumberFormatter()
-        timeformatter.minimumIntegerDigits = 2
-        timeformatter.minimumFractionDigits = 0
-        timeformatter.roundingMode = .down
-        guard let hoursStr = timeformatter.string(from: NSNumber(value: hours)), let minsStr = timeformatter.string(from: NSNumber(value: mins)), let secsStr = timeformatter.string(from: NSNumber(value: secs)) else {
-            return
-        }
-        self.videoTotalTimeLabel.text = "\(hoursStr):\(minsStr):\(secsStr)"
     }
+   
 }
-
+//MARK: - UITableViewDataSource
+extension CourseDetailsViewController: UITableViewDataSource{
+    
+    
+       func numberOfSections(in tableView: UITableView) -> Int {
+           return 1
+       }
+       func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+           return courseVideoList.count
+       }
+       
+       func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+           
+           let cell = tableView.dequeueReusableCell(withIdentifier:"videoCell",for:indexPath) as! CourseDetailsTableViewCell
+           cell.courseVideoNameLabel.text = "1)\(extractString(from: courseVideoList[indexPath.row])!)"
+           
+           let fetchRequest:NSFetchRequest<Video> = Video.fetchRequest()
+           fetchRequest.predicate = NSPredicate(format: "videoName == %@", extractString(from: courseVideoList[indexPath.row])!)
+           var videoList:[Video] = [Video]()
+           do{
+               videoList = try context.fetch(fetchRequest)
+           }catch{
+               print("hata")
+           }
+           if videoList.count > 0{
+               cell.videoDownloadImageView.image = UIImage(systemName: "externaldrive.badge.checkmark")
+           }else{
+               cell.videoDownloadImageView.image = nil
+           }
+           return cell
+       }
+       
+}
 //MARK: - Objc Functions
 extension CourseDetailsViewController{
     
+    @objc func videoRemaining(notification:Notification){
+        if let newData = notification.userInfo?["remainTime"] as? Float {
+            downloadProgressView.alpha = 1.0
+            downloadProgressView.setProgress(newData, animated:true)
+            print("courseDetailVC içi kalan süre: \(newData)")
+            if newData == 1.0{
+                downloadProgressView.alpha = 0.0
+                downloadProgressView.setProgress(0.0,animated: true)
+            }
+        }else{
+            print("hata")
+        }
+        
+        
+        
+    }
+    
+    @objc func playerDidFinishPlaying(notification: Notification) {
+           lastPlaybackTime = nil // Video sona erdiğinde oynatma zamanını sıfırla.
+    }
+    
     @objc func turnBackToPage(){
         self.navigationController?.popViewController(animated: true)
-    }
-    
-    @objc private func onTap10SecNext() {
-        guard let currentTime = self.videoPlayer?.currentTime() else { return }
-        let seekTime10Sec = CMTimeGetSeconds(currentTime).advanced(by: 10)
-        let seekTime = CMTime(value: CMTimeValue(seekTime10Sec), timescale: 1)
-        self.videoPlayer?.seek(to: seekTime, completionHandler: { completed in
-            
-        })
-    }
-    
-    @objc private func onTap10SecBack() {
-        guard let currentTime = self.videoPlayer?.currentTime() else { return }
-        let seekTime10Sec = CMTimeGetSeconds(currentTime).advanced(by: -10)
-        let seekTime = CMTime(value: CMTimeValue(seekTime10Sec), timescale: 1)
-        self.videoPlayer?.seek(to: seekTime, completionHandler: { completed in
-            
-        })
-    }
-    
-    @objc private func onTapPlayPause() {
-    
-        if self.videoPlayStop.image == UIImage(systemName: "play.circle"){
-            self.videoPlayStop.image = UIImage(systemName: "pause.circle")
-                        self.video10secBack.alpha = 0
-                        self.video10secForward.alpha = 0
-                        self.videoPlayer?.pause()
-        }else if self.videoPlayStop.image == UIImage(systemName: "pause.circle") {
-            self.videoPlayStop.image = UIImage(systemName: "play.circle")
-                        self.video10secBack.alpha = 1
-                        self.video10secForward.alpha = 1
-                        self.videoPlayer?.play()
-        }
-//        if self.videoPlayer?.timeControlStatus == .playing {
-//            self.videoPlayStop.image = UIImage(systemName: "pause.circle")
-//            self.video10secBack.alpha = 0
-//            self.video10secForward.alpha = 0
-//            self.videoPlayer?.pause()
-//        } else {
-//            self.videoPlayStop.image = UIImage(systemName: "play.circle")
-//            self.video10secBack.alpha = 1
-//            self.video10secForward.alpha = 1
-//            self.videoPlayer?.play()
-//        }
-    }
-    @objc private func onTapToSlide() {
-        self.isThumbSeek = true
-        guard let duration = self.videoPlayer?.currentItem?.duration else { return }
-        let value = Float64(self.videoSlider.value) * CMTimeGetSeconds(duration)
-        if value.isNaN == false {
-            let seekTime = CMTime(value: CMTimeValue(value), timescale: 1)
-            self.videoPlayer?.seek(to: seekTime, completionHandler: { completed in
-                if completed {
-                    self.isThumbSeek = false
-                }
-            })
-        }
-    }
-    
-    @objc private func onTapToggleScreen() {
-        if #available(iOS 16.0, *) {
-            guard let windowSceen = self.view.window?.windowScene else { return }
-            if windowSceen.interfaceOrientation == .portrait {
-                windowSceen.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape)) { error in
-                    print(error.localizedDescription)
-                }
-            } else {
-                windowSceen.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait)) { error in
-                    print(error.localizedDescription)
-                }
-            }
-        } else {
-            if UIDevice.current.orientation == .portrait {
-                let orientation = UIInterfaceOrientation.landscapeRight.rawValue
-                UIDevice.current.setValue(orientation, forKey: "orientation")
-            } else {
-                let orientation = UIInterfaceOrientation.portrait.rawValue
-                UIDevice.current.setValue(orientation, forKey: "orientation")
-            }
-        }
     }
 }
 
@@ -357,4 +269,79 @@ extension CourseDetailsViewController {
         print("İlgili aralık bulunamadı")
         return nil
     }
+    
+    func getSavedVideoURL(fileName: String) -> URL? {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let fileURL = documentsDirectory.appendingPathComponent(fileName)
+
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            return fileURL
+        } else {
+            print("Dosya mevcut değil.")
+            return nil
+        }
+    }
+    
+    func deleteVideo(fileName: String) -> Bool {
+        let fileManager = FileManager.default
+        let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let fileURL = documentsDirectory.appendingPathComponent(fileName)
+
+        do {
+            if fileManager.fileExists(atPath: fileURL.path) {
+                try fileManager.removeItem(at: fileURL)
+                print("Video başarıyla silindi: \(fileURL)")
+                return true
+            } else {
+                print("Dosya mevcut değil: \(fileURL)")
+                return false
+            }
+        } catch {
+            print("Video silme hatası: \(error.localizedDescription)")
+            return false
+        }
+    }
+}
+
+
+
+extension CourseDetailsViewController:EmptyDataSetSource,EmptyDataSetDelegate{
+    
+   
+    func description(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
+        if UserViewModel.currentUser() != nil{
+            if Connectivity.isInternetAvailable(){
+                return NSAttributedString(string: "Güncel kurslara erişin.")
+            }else{
+                return NSAttributedString(string: "Kursları görüntülemek için internet bağlantısı gerekmektedir!")
+            }
+        }else{
+            if Connectivity.isInternetAvailable(){
+                return NSAttributedString(string: "Kursları görüntülemek için giriş yapılmalıdır!")
+            }else{
+                return NSAttributedString(string: "")
+            }
+        }
+        
+        
+    }
+    func title(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
+        
+        if Connectivity.isInternetAvailable(){
+            return NSAttributedString(string: "Satın alınan kurs bulunamadı!")
+        }else{
+            return NSAttributedString(string: "Kursları görüntülemek için internet bağlantısı gereklidir!")
+        }
+    }
+    
+    func image(forEmptyDataSet scrollView: UIScrollView) -> UIImage? {
+        
+        if Connectivity.isInternetAvailable(){
+            return UIImage(named: "history")
+        }else{
+            return UIImage(named: "noWifi")
+        }
+        
+    }
+  
 }
