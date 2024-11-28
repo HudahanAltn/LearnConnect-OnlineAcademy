@@ -7,32 +7,37 @@
 
 import UIKit
 import Combine
+import EmptyDataSet_Swift
 class ItemReviewsViewController: UIViewController {
     
     @IBOutlet weak var itemReviewsTableView: UITableView!
     
-    var reviewVM = ReviewViewModel()
     var item:Item?
-    
+    var reviewVM = ReviewViewModel()
     var reviews:[Review] = [Review]()
     
     private var cancellableItems:Set<AnyCancellable> = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         itemReviewsTableView.delegate = self
         itemReviewsTableView.dataSource = self
+        itemReviewsTableView.emptyDataSetSource = self
+        itemReviewsTableView.emptyDataSetDelegate = self
         itemReviewsTableView.separatorStyle = .none
-        self.navigationController?.navigationBar.prefersLargeTitles = true
-        self.navigationItem.largeTitleDisplayMode = .always
+        navigationItem.title = item?.name
+
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(self.turnBackToPage))
         setUpBinders()
-       
-        // Do any additional setup after loading the view.
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        reviewVM.downloadReviewsFromFirebase(itemID: item!.id!)
+        
+        if Connectivity.isInternetAvailable(){
+            reviewVM.downloadReviewsFromFirebase(itemID: item!.id!)
+        }else{
+            Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -48,13 +53,17 @@ class ItemReviewsViewController: UIViewController {
     }
 
 }
-
+//MARK: - UITableViewDelegate
 extension ItemReviewsViewController:UITableViewDelegate{
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 160
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
 }
-
+//MARK: - UITableDataSource
 extension ItemReviewsViewController:UITableViewDataSource{
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -68,8 +77,36 @@ extension ItemReviewsViewController:UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let reviewCell =  tableView.dequeueReusableCell(withIdentifier:"itemReviewCell", for:indexPath) as! ItemReviewsTableViewCell
-        reviewCell.createItemsCell(reviewVM.reviews[indexPath.row])
+        reviewCell.createReviewCell(reviewVM.reviews[indexPath.row])
         return reviewCell
         
+    }
+}
+//MARK: - UITableViewEmpty
+extension ItemReviewsViewController:EmptyDataSetSource,EmptyDataSetDelegate{
+    func title(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
+        
+        if Connectivity.isInternetAvailable(){
+            return NSAttributedString(string: "Kursa ait değerlendirme bulunamadı!")
+        }else{
+            return NSAttributedString(string: "İnternet bağlantınızı kontrol ediniz!")
+        }
+        
+    }
+    
+    func image(forEmptyDataSet scrollView: UIScrollView) -> UIImage? {
+        if Connectivity.isInternetAvailable(){
+            return UIImage(named: "noComments")
+        }else{
+            return UIImage(named: "noWifi")
+        }
+        
+    }
+}
+//MARK: - OBJC
+extension ItemReviewsViewController{
+    
+    @objc func turnBackToPage(){
+        self.navigationController?.popViewController(animated: true)
     }
 }

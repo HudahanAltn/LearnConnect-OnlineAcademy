@@ -143,9 +143,6 @@ class UserViewModel{
         }
     }
     
-    
-    
-    
     class func saveUserOnPhone(user:NSDictionary){//WelcomeVC'de kullancıı giriş yapınca çalışacak ve auth ile başarıyla giriş yapan kişinin bilgileri yerele kaydedilecek.
         
         UserDefaults.standard.set(user, forKey: FirebaseConstants().kEMAIL)//kullanıcıyı yerele kEMAİL ile kaydet

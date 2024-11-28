@@ -25,8 +25,6 @@ class User{
     
 
     init(email: String?, firstName: String, lastName: String,fullAdres:String,turkishCitizenshipId: String, phoneNumber: String,profilePicture:String?, dateOfBirth: String) {
-        
-       
         self.email = email
         self.firstName = firstName
         self.lastName = lastName
@@ -42,11 +40,8 @@ class User{
         
     }
     
-    init(_dictionary:NSDictionary){//dict dönüşüm.
+    init(_dictionary:NSDictionary){
         
-   
-        
-        //burdan aşağısı için gelen her değer için emin olmak lazım.
         if let mail = _dictionary[FirebaseConstants().kEMAIL]{
             
             email = mail as! String

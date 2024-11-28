@@ -18,7 +18,6 @@ class WelcomeViewController: UIViewController {
     @IBOutlet weak var registerButton: UIButton!
     @IBOutlet weak var loginActivityIndicator: UIActivityIndicatorView!
     
-    
     var welcomeHelper = WelcomeHelper()
     var accountDependency = AccountDependenciesHelper()
     var textFieldHelper = UITextFieldHelper()
@@ -50,11 +49,11 @@ class WelcomeViewController: UIViewController {
 
     @IBAction func showPasswordButtonPressed(_ sender: Any) {
     
-        if isPasswordOpen{ //şifre görünür
+        if isPasswordOpen{
             passwordTextField.isSecureTextEntry = true
             showPasswordButton.setImage(UIImage(systemName: "eye.slash"), for: .normal)
             isPasswordOpen = false
-        }else{//şifre görünmüyor
+        }else{
             passwordTextField.isSecureTextEntry = false
             showPasswordButton.setImage(UIImage(systemName: "eye"), for: .normal)
             isPasswordOpen = true

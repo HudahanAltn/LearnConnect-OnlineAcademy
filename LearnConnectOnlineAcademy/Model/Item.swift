@@ -20,12 +20,8 @@ class Item:Equatable{
     var dealerMail:String! // satıcı foreignKey
     
     init(){
-        print("item yaratıldı boş \(name)")
     }
-    deinit{
-        print("item yok edildi \(name)")
-    }
-    
+
     init(_dictionary:NSDictionary){
         id = _dictionary[FirebaseConstants().kOBJECTID] as? String
         categoryId = _dictionary[FirebaseConstants().kCATEGORYID] as? String
@@ -36,7 +32,6 @@ class Item:Equatable{
         imageLink = _dictionary[FirebaseConstants().kIMAGELINK] as? String
         videoLinks = _dictionary[FirebaseConstants().kVIDEOLINKS] as? [String]
         dealerMail = _dictionary[FirebaseConstants().kDEALERNAME] as? String
-        print("item yaratıldı dict \(name)")
     }
     
     

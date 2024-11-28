@@ -11,17 +11,12 @@ import Foundation
 class ReviewViewModel {
     
     @Published var reviews:[Review] = [Review]()
-    //MARK: - Review save
     
     func saveReviewToFirestore(_ review:Review){
-        
         FirebaseReference(.Review).document(review.id).setData(reviewDictionaryFrom(review) as! [String:Any])
     }
     
-    //MARK: - Dict dönüşümü yapan fonksiyon
-    
     func reviewDictionaryFrom(_ review:Review)->NSDictionary{
-        
         return NSDictionary(objects: [review.id,
                                       review.ownerId,
                                       review.itemID,
@@ -34,10 +29,9 @@ class ReviewViewModel {
                                       FirebaseConstants().kPOINT as NSCopying])
     }
     
-    func downloadReviewsFromFirebase(itemID:String){ //download item
+    func downloadReviewsFromFirebase(itemID:String){
         self.reviews.removeAll()
         FirebaseReference(.Review).whereField(FirebaseConstants().kITEMID, isEqualTo: itemID).getDocuments{
-            
             snapshot,error in
             guard let snapshot = snapshot else{
                 return
@@ -53,7 +47,6 @@ class ReviewViewModel {
     func downloadReviewsFromFirebase(itemID:String,completion:@escaping(_ review:[Review])->Void){
         var reviews:[Review] = [Review]()
         FirebaseReference(.Review).whereField(FirebaseConstants().kITEMID, isEqualTo: itemID).getDocuments{
-            
             snapshot,error in
             guard let snapshot = snapshot else{
                 completion([])
@@ -69,6 +62,4 @@ class ReviewViewModel {
             }
         }
     }
-    
-    
 }

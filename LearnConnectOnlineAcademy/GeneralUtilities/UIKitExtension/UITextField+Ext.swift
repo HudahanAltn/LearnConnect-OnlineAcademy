@@ -21,6 +21,7 @@ extension UITextField {
         leftView = iconContainerView
         leftViewMode = .always
     }
+    
     func setIconAtRight(_ image: UIImage,color:UIColor) {
         let iconView = UIImageView(frame:CGRect(x: 2, y:4, width: 26, height: 26))
         iconView.image = image

@@ -51,12 +51,5 @@ class SearchHelper{
         viewController.activityIndicator.removeFromSuperview()
         activityIndicator.stopAnimating()
     }
-
-//    func showActivityIndicator(activityIndicator:UIActivityIndicatorView,viewController:SearchViewController){
-//
-//        if activityIndicator.
-//    }
-//    func hideActivityIndicator(activityIndicator:UIActivityIndicatorView,viewController:SearchViewController){
-//
-//    }
+    
 }

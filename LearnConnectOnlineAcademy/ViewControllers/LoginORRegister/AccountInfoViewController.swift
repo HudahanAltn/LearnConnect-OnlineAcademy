@@ -10,48 +10,33 @@ import PhotosUI
 
 class AccountInfoViewController: UIViewController {
 
-    
     @IBOutlet weak var accountProgresView: UIProgressView!
-    
     @IBOutlet weak var userNameLabel: UILabel!
-    
     @IBOutlet weak var userPhoneLabel: UILabel!
-    
     @IBOutlet weak var userProfileImageView: UIImageView!
-    
     @IBOutlet weak var emailTextField: UITextField!
-    
-    
     @IBOutlet weak var passwordTextField: UITextField!
-    
-    
     @IBOutlet weak var showPasswordButton: UIButton!
-    
     @IBOutlet weak var registerButton: UIButton!
-    
     @IBOutlet weak var accountRegisterActivityIndicator: UIActivityIndicatorView!
-    
-    
+
     var user:User?
     var isPasswordOpen = true
-  
-    
+
     var accountInfoHelper = AccountInfoHelper()
     var accountDependency = AccountDependenciesHelper()
     var textFieldHelper = UITextFieldHelper()
     
     var progress: Float = 0.3
-    let totalDuration: TimeInterval = 2.0 // İlerleme tamamlanma süresi (saniye)
-    let updateInterval: TimeInterval = 0.01 // İlerleme güncelleme aralığı (saniye)
+    let totalDuration: TimeInterval = 2.0
+    let updateInterval: TimeInterval = 0.01
     var timer: Timer?
     
     private let minimumTapInterval = CFTimeInterval(4)
     private var lastTapTime = CFAbsoluteTime(0)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        print("user: \(user?.email)- \(user?.firstName) - \(user?.lastName) - \(user?.fullName) - \(user?.fullAdress) - \(user?.purchasedItemIds) - \(user?.onBoard) - \(user?.turkishCitizenshipId) -\(user?.phoneNumber) - \(user?.dateOfBirth) - \(user?.profilePicture)")
-        
         navigationItem.title = "Giriş Bilgileri"
         navigationItem.hidesBackButton = false
         navigationItem.titleView?.tintColor = .systemGreen
@@ -75,7 +60,6 @@ class AccountInfoViewController: UIViewController {
     }
 
     @IBAction func galleryButtonPressed(_ sender: Any) {
-       
         var config = PHPickerConfiguration()
         config.filter = .images
         config.selectionLimit = 1
@@ -86,18 +70,17 @@ class AccountInfoViewController: UIViewController {
     
     
     @IBAction func showPasswordButtonPressed(_ sender: Any) {
-        
-        
-        if isPasswordOpen { //şifre görünür
+        if isPasswordOpen {
             passwordTextField.isSecureTextEntry = true
             showPasswordButton.setImage(UIImage(systemName: "eye.slash"), for: .normal)
             isPasswordOpen = false
-        }else {//şifre görünmüyor
+        }else {
             passwordTextField.isSecureTextEntry = false
             showPasswordButton.setImage(UIImage(systemName: "eye"), for: .normal)
             isPasswordOpen = true
         }
     }
+    
     @IBAction func registerButtonPressed(_ sender: Any) {
         let now = CFAbsoluteTimeGetCurrent()
         guard now >= lastTapTime + minimumTapInterval else { return }
@@ -117,7 +100,6 @@ class AccountInfoViewController: UIViewController {
                                         if createUserError == nil{
                                             if sendVerificationError == nil{
                                                 //kayıt başarılı firestore'a bilgileri geç
-            
                                                 let user1 = User(
                                                                 email: self.emailTextField!.text!,
                                                                 firstName: self.user!.firstName,
@@ -143,7 +125,7 @@ class AccountInfoViewController: UIViewController {
                                         }else{
                                             Alert.createAlert(title: "Hata", message: "Kullanıcı kaydı başarısız!", view: self)
                                         }
-                                    }//UserVMSOn
+                                    }
                                 }else{
                                     Alert.createAlert(title: "Hata", message: "Girilen şifre geçerli güvenlik önlemlerini karşılamıyor!", view: self)
                                 }
@@ -165,9 +147,8 @@ class AccountInfoViewController: UIViewController {
         
     }
     
-  
-
 }
+
 //MARK: - Helper Functions
 extension AccountInfoViewController{
 
@@ -199,7 +180,7 @@ extension AccountInfoViewController{
         accountInfoHelper.setUserLabels(tempUser: user!, userNameLabel: userNameLabel, userPhoneLabel: userPhoneLabel)
     }
     
-    private func bindTextFieldDelegate(textfields:UITextField...){//textfield delegate'lerini bağla.
+    private func bindTextFieldDelegate(textfields:UITextField...){
         for textfield in textfields{
             textfield.delegate = self
         }
@@ -216,9 +197,8 @@ extension AccountInfoViewController{
 //MARK: PHPickerViewControllerDelegate
 extension AccountInfoViewController:PHPickerViewControllerDelegate{
     
-    //alınan resimler tamamlanınca bu delegate fonks tetiklenir.
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        picker.dismiss(animated: true,completion: nil)//picker kapatılır
+        picker.dismiss(animated: true,completion: nil)
         results.forEach{ result in
             result.itemProvider.loadObject(ofClass: UIImage.self){ [weak self] reading,error in
                 guard let image = reading as? UIImage, error == nil else{
@@ -298,17 +278,13 @@ extension AccountInfoViewController{
     }
     
     @objc func updateProgress() {
-            // İlerleme değerini güncelle
             progress += Float(updateInterval / totalDuration)
-            // İlerleme tamamlandığında timer'ı durdur
             if progress == 1.0 {
                 timer?.invalidate()
                 timer = nil
             }
-            // UIProgressView'ı güncelle
             accountProgresView.setProgress(progress, animated: true)
         }
-    
 }
 
 

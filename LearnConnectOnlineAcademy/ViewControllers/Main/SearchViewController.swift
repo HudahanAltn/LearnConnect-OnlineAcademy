@@ -23,10 +23,10 @@ class SearchViewController: UIViewController {
     }()
     
     var searchHelper = SearchHelper()//helper
-    var itemVM = ItemViewModel()//firebase'den algolia'dan gelen sonuçları indirmek için
+    var itemVM = ItemViewModel()
     var searchVM = SearchViewModel()
-    var searchResults:[Item] = [Item]() // firebase'den gelen arama sonuçlarını tutar
-    var itemIDSearchResultsFromAlgolia:[String] = [String] ()//algolia'dan gelen arama sonuçlarının object id'lerini tutar
+    var searchResults:[Item] = [Item]()
+    var itemIDSearchResultsFromAlgolia:[String] = [String] ()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -81,11 +81,9 @@ extension SearchViewController{
         searchHelper.showTableView(tableView: searchTableView)
         
         itemIDSearchResultsFromAlgolia.removeAll()//temizle
-        itemIDSearchResultsFromAlgolia = searchVM.searchItemAtAlgolia(searchString: searchText)//algolia'dan gelen object id'ler
-        
+        itemIDSearchResultsFromAlgolia = searchVM.searchItemAtAlgolia(searchString: searchText)
         searchInFirebase(itemIds: itemIDSearchResultsFromAlgolia)
     }
-    
 }
 
 //MARK: - UITableViewDelegate
@@ -147,13 +145,13 @@ extension SearchViewController:UISearchBarDelegate{
     
 }
 
-
+//MARK: - UITableViewEmpty
 extension SearchViewController:EmptyDataSetSource,EmptyDataSetDelegate{
     
     func title(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
         
         if Connectivity.isInternetAvailable(){
-            return NSAttributedString(string: "Aranan ürün bulunamadı!")
+            return NSAttributedString(string: "Aranan kurs bulunamadı!")
 
         }else{
             return NSAttributedString(string: "İnternet Bağlantısı Yok!")

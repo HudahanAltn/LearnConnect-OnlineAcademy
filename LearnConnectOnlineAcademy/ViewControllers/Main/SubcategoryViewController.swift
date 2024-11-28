@@ -66,6 +66,7 @@ class SubcategoryViewController: UIViewController {
 
 }
 
+//MARK: - UITableViewDelegate
 extension SubcategoryViewController:UITableViewDelegate{
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -83,6 +84,7 @@ extension SubcategoryViewController:UITableViewDelegate{
     }
 }
 
+//MARK: - UITableviewDataSource
 extension SubcategoryViewController:UITableViewDataSource{
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -100,16 +102,13 @@ extension SubcategoryViewController:UITableViewDataSource{
         return categoryCell
     }
 }
-
-
+//MARK: - OBJC
 extension SubcategoryViewController{
     
     @objc func turnBackToPage(){
         self.navigationController?.popViewController(animated: true)
     }
 }
-
-
 //MARK: - EmptyDataSetTableView
 extension SubcategoryViewController:EmptyDataSetSource,EmptyDataSetDelegate{
     

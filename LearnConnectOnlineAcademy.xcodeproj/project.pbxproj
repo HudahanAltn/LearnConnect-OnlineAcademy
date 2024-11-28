@@ -19,7 +19,18 @@
 		05F802262CF53E8700383154 /* AlgoliaSearchClient in Frameworks */ = {isa = PBXBuildFile; productRef = 05F802252CF53E8700383154 /* AlgoliaSearchClient */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		0578FEE72CF7F49A0039D5A2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 05A93CA52CEFA72F0077513A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 05A93CAC2CEFA72F0077513A;
+			remoteInfo = LearnConnectOnlineAcademy;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		0578FEE32CF7F49A0039D5A2 /* LearnConnectOnlineAcademyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LearnConnectOnlineAcademyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		05A93CAD2CEFA72F0077513A /* LearnConnectOnlineAcademy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LearnConnectOnlineAcademy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -34,6 +45,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		0578FEE42CF7F49A0039D5A2 /* LearnConnectOnlineAcademyTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = LearnConnectOnlineAcademyTests;
+			sourceTree = "<group>";
+		};
 		05A93CAF2CEFA72F0077513A /* LearnConnectOnlineAcademy */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -45,6 +61,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		0578FEE02CF7F49A0039D5A2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		05A93CAA2CEFA72F0077513A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -69,6 +92,7 @@
 			isa = PBXGroup;
 			children = (
 				05A93CAF2CEFA72F0077513A /* LearnConnectOnlineAcademy */,
+				0578FEE42CF7F49A0039D5A2 /* LearnConnectOnlineAcademyTests */,
 				05A93CAE2CEFA72F0077513A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -77,6 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				05A93CAD2CEFA72F0077513A /* LearnConnectOnlineAcademy.app */,
+				0578FEE32CF7F49A0039D5A2 /* LearnConnectOnlineAcademyTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -84,6 +109,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		0578FEE22CF7F49A0039D5A2 /* LearnConnectOnlineAcademyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0578FEE92CF7F49A0039D5A2 /* Build configuration list for PBXNativeTarget "LearnConnectOnlineAcademyTests" */;
+			buildPhases = (
+				0578FEDF2CF7F49A0039D5A2 /* Sources */,
+				0578FEE02CF7F49A0039D5A2 /* Frameworks */,
+				0578FEE12CF7F49A0039D5A2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0578FEE82CF7F49A0039D5A2 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				0578FEE42CF7F49A0039D5A2 /* LearnConnectOnlineAcademyTests */,
+			);
+			name = LearnConnectOnlineAcademyTests;
+			packageProductDependencies = (
+			);
+			productName = LearnConnectOnlineAcademyTests;
+			productReference = 0578FEE32CF7F49A0039D5A2 /* LearnConnectOnlineAcademyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		05A93CAC2CEFA72F0077513A /* LearnConnectOnlineAcademy */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 05A93CC02CEFA7310077513A /* Build configuration list for PBXNativeTarget "LearnConnectOnlineAcademy" */;
@@ -126,6 +174,10 @@
 				LastSwiftUpdateCheck = 1610;
 				LastUpgradeCheck = 1610;
 				TargetAttributes = {
+					0578FEE22CF7F49A0039D5A2 = {
+						CreatedOnToolsVersion = 16.1;
+						TestTargetID = 05A93CAC2CEFA72F0077513A;
+					};
 					05A93CAC2CEFA72F0077513A = {
 						CreatedOnToolsVersion = 16.1;
 					};
@@ -151,11 +203,19 @@
 			projectRoot = "";
 			targets = (
 				05A93CAC2CEFA72F0077513A /* LearnConnectOnlineAcademy */,
+				0578FEE22CF7F49A0039D5A2 /* LearnConnectOnlineAcademyTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0578FEE12CF7F49A0039D5A2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		05A93CAB2CEFA72F0077513A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -166,6 +226,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0578FEDF2CF7F49A0039D5A2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		05A93CA92CEFA72F0077513A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -175,7 +242,51 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		0578FEE82CF7F49A0039D5A2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 05A93CAC2CEFA72F0077513A /* LearnConnectOnlineAcademy */;
+			targetProxy = 0578FEE72CF7F49A0039D5A2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		0578FEEA2CF7F49A0039D5A2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K2FS85Z6PG;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Hu-dahan-Altun.LearnConnectOnlineAcademyTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LearnConnectOnlineAcademy.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LearnConnectOnlineAcademy";
+			};
+			name = Debug;
+		};
+		0578FEEB2CF7F49A0039D5A2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = K2FS85Z6PG;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Hu-dahan-Altun.LearnConnectOnlineAcademyTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LearnConnectOnlineAcademy.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LearnConnectOnlineAcademy";
+			};
+			name = Release;
+		};
 		05A93CC12CEFA7310077513A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -358,6 +469,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0578FEE92CF7F49A0039D5A2 /* Build configuration list for PBXNativeTarget "LearnConnectOnlineAcademyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0578FEEA2CF7F49A0039D5A2 /* Debug */,
+				0578FEEB2CF7F49A0039D5A2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		05A93CA82CEFA72F0077513A /* Build configuration list for PBXProject "LearnConnectOnlineAcademy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

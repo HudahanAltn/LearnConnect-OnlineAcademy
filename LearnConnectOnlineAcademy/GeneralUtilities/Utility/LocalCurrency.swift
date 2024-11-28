@@ -9,12 +9,12 @@ import Foundation
 
 struct LocalCurrency{
     
-    func convertCurrency(_ number:Double)->String{//81
-        let currencyFormatter = NumberFormatter()//81
-        currencyFormatter.usesGroupingSeparator = true//81
-        currencyFormatter.numberStyle = .currency//81
+    func convertCurrency(_ number:Double)->String{
+        let currencyFormatter = NumberFormatter()
+        currencyFormatter.usesGroupingSeparator = true
+        currencyFormatter.numberStyle = .currency
         currencyFormatter.locale = Locale(identifier: "tr_TR")
         
-        return currencyFormatter.string(from: NSNumber(value: number))!//81
+        return currencyFormatter.string(from: NSNumber(value: number))!
     }
 }

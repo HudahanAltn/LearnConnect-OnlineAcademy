@@ -11,6 +11,7 @@ import UIKit
 extension Notification.Name{
     static let notificaitonName = Notification.Name("paymentBroadcast")
 }
+
 class PaymentViewController: UIViewController {
 
     @IBOutlet weak var welcomeLabel: UILabel!
@@ -52,24 +53,17 @@ class PaymentViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.hidesBackButton = false
-        tabBarItem.isAccessibilityElement = false //tabbar
+        tabBarItem.isAccessibilityElement = false
         
         cardNameTextField.delegate = self
         cardNumberTextField.delegate = self
         mm_yyTextField.delegate = self
         ccvTextField.delegate = self
-        orderButton.backgroundColor = .systemCyan
-        defaultConfigureTextFields()
-        totalPriceLabel.text = totalPrice!
-        userNameLabel.text = UserViewModel.currentUser()?.fullName
-        loadDatePicker(maxYear: 10)
-        setupToolbar(toolbar: toolbar)
-        
+        setupUI()
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(self.turnBackToPage))
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
         
-        paymentHelper.setButtonCornerRadius(value: 5, views: applePayImageView,mastercardImageView,paypalImageView,visaImageView,orderButton)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -82,7 +76,6 @@ class PaymentViewController: UIViewController {
         super.viewWillDisappear(animated)
         tabBarController?.tabBar.isHidden = false
         NotificationCenter.default.post(name: .notificaitonName, object: nil,userInfo: ["message":isUserPaid])
-        print("kurs ödemesi yapıldımı2 : \(isUserPaid)")
     }
     
     @IBAction func termsButtonPressed(_ sender: UIButton) {
@@ -102,7 +95,7 @@ class PaymentViewController: UIViewController {
             if cardccvCheck && cardNameCheck && cardNumberCheck && cardmmYYCheck{
                 if privacySwitch.isOn && termsSwitch.isOn{
                     isUserPaid = true
-                    Alert.createAlertWithPop(title: "Bilgilendirme", message: "Sipariş Verilmiştir!", view: self)
+                    Alert.createAlertWithPop(title: "Bilgilendirme", message: "Ödeme Başarılı!", view: self)
                 }else{
                     Alert.createAlert(title: "Bilgilendirme", message: "Lütfen Sözleşmeleri Okuyup Kabul Ediniz.", view: self)
                 }
@@ -113,11 +106,11 @@ class PaymentViewController: UIViewController {
             Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
         }
     }
-    
-    @objc func turnBackToPage(){
-        self.navigationController?.popViewController(animated: true)
-    }
-    
+}
+
+
+//MARK: - PaymentVC Helper
+extension PaymentViewController{
     func defaultConfigureTextFields(){
         textFieldHelper.setTextFieldsDefaultImageViewAtRight(defaultImage: UIImage(systemName: "pencil.circle")!, color: .black, textFields: cardNameTextField,cardNumberTextField,mm_yyTextField,ccvTextField)
         textFieldHelper.setTextFieldAutoCorrectionType(type: .no, textFields:cardNameTextField,cardNumberTextField,mm_yyTextField,ccvTextField)
@@ -125,10 +118,18 @@ class PaymentViewController: UIViewController {
         textFieldHelper.setTextFieldKeyboardType(type: .default,returnType: .done, textFields: cardNameTextField,mm_yyTextField)
         textFieldHelper.setTextFieldKeyboardType(type: .numberPad,returnType: .done, textFields: cardNumberTextField,ccvTextField)
     }
+    
+    func setupUI(){
+        orderButton.backgroundColor = .systemCyan
+        defaultConfigureTextFields()
+        totalPriceLabel.text = totalPrice!
+        userNameLabel.text = UserViewModel.currentUser()?.fullName
+        loadDatePicker(maxYear: 10)
+        setupToolbar(toolbar: toolbar)
+        
+        paymentHelper.setButtonCornerRadius(value: 5, views: applePayImageView,mastercardImageView,paypalImageView,visaImageView,orderButton)
+    }
 }
-
-
-
 //MARK: - UITextFieldDelegate
 extension PaymentViewController:UITextFieldDelegate{
     
@@ -230,10 +231,12 @@ extension PaymentViewController:UITextFieldDelegate{
     }
     
 }
-
-
 //MARK: - Objective-C functions
 extension PaymentViewController {
+    
+    @objc func turnBackToPage(){
+        self.navigationController?.popViewController(animated: true)
+    }
     
     @objc func dismissKeyboard() {
         view.endEditing(true)
@@ -248,7 +251,7 @@ extension PaymentViewController {
     }
     
 }
-//MARK: -
+//MARK: - Picker
 extension PaymentViewController {
     func loadDatePicker(minDay:Int = 0,minMonth:Int = 0, minYear:Int = 0, maxDay:Int = 0, maxMonth:Int = 0, maxYear:Int = 0){
         let date = Date()

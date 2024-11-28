@@ -14,17 +14,11 @@ class ItemViewModel{
     @Published var items:[Item] = [Item]()
     @Published var itemImages:[UIImage] = []
     
-    //MARK: - Kategori altına item save eden fonksiyon
-    
     func saveItemToFirestore(_ item:Item){
-        
         FirebaseReference(.Items).document(item.id).setData(itemDictionaryFrom(item)as! [String:Any])
     }
-    
-    //MARK: - Dict dönüşümü yapan fonksiyon
-    
+
     func itemDictionaryFrom(_ item:Item)->NSDictionary{
-        
         return NSDictionary(objects: [item.id,item.categoryId,item.subCategoryId,item.name,item.description,item.price,item.imageLink,item.videoLinks,item.dealerMail],
                             forKeys: [FirebaseConstants().kOBJECTID as NSCopying,
                                       FirebaseConstants().kCATEGORYID as NSCopying,
@@ -38,12 +32,10 @@ class ItemViewModel{
     }
     
     func saveItemsToFirestore(_ item:Item){
-        
         FirebaseReference(.Items).document(item.id).setData(itemDictionaryFrom(item) as! [String:Any])
-        
     }
     
-    func downloadItemsFromFirebase(withSubCategoryId:String){ //download item
+    func downloadItemsFromFirebase(withSubCategoryId:String){
         self.items.removeAll()
         FirebaseReference(.Items).whereField(FirebaseConstants().kSUBCATEGORYID, isEqualTo: withSubCategoryId).getDocuments{
             
@@ -59,7 +51,6 @@ class ItemViewModel{
         }
     }
     
-    //kullanıcınnı satın adlığı kurslar
     func downloadPurchasedItems(_ withIds:[String],completion:@escaping (_ itemArray:[Item])->Void){
         var count = 0//indirelecek item sayısını tutar
         var itemArray:[Item] = [Item]()//itemleri tutacka olan array
@@ -77,7 +68,7 @@ class ItemViewModel{
                     }else {
                         completion(itemArray)
                     }
-
+                    
                     if count == withIds.count {
                         completion(itemArray)
                     }
@@ -87,8 +78,7 @@ class ItemViewModel{
             completion(itemArray)
         }
     }
-    
-    //MARK: - Search
+
     func downloadItemsForSearching(_ withIds:[String],completion:@escaping (_ itemArray:[Item])->Void){
         
         var count = 0
@@ -107,7 +97,7 @@ class ItemViewModel{
                     }else{
                         completion(itemArray)
                     }
-    
+                    
                     if count == withIds.count{
                         
                         completion(itemArray)
@@ -118,10 +108,22 @@ class ItemViewModel{
             completion(itemArray)
         }
     }
+    
     func saveItemToAlgolia(item:Item){
         
         let index = AlgoliaService.shared.index
         let itemToSave = AlgoliaItem(objectID: ObjectID(rawValue: item.id!), name: item.name)
         let _: ()? = try? index.saveObject(itemToSave).wait()
+    }
+    
+    func removeItemFromFirestore(itemId:String){
+        FirebaseReference(.Items).document(itemId).delete{
+            error in
+            if error == nil{
+                print("silme başarılı")
+            }else{
+                print("silme başarısız")
+            }
+        }
     }
 }

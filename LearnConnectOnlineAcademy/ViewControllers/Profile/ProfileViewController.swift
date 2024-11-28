@@ -13,8 +13,6 @@ class ProfileViewController: UIViewController {
     @IBOutlet weak var userNameLabel: UILabel!
     @IBOutlet weak var userProfilePictureImageView: UIImageView!
     @IBOutlet weak var profileActivityIndicator: UIActivityIndicatorView!
-    
-    
     @IBOutlet weak var settingsView: UIView!
     @IBOutlet weak var purchasedHistory: UIButton!
     @IBOutlet weak var addItemButton: UIButton!
@@ -64,11 +62,11 @@ class ProfileViewController: UIViewController {
 
  
     @IBAction func ProfileButtonsPressed(_ sender: UIButton) {
-
+        if sender.titleLabel?.text! == "    İndirilenler"{
+            performSegue(withIdentifier: "profileToDownloaded", sender: nil)
+        }
         if Connectivity.isInternetAvailable(){
             switch sender.titleLabel?.text! {
-            case "    İndirilenler":
-                performSegue(withIdentifier: "profileToDownloaded", sender: nil)
             case "    Ürün Ekle":
                 performSegue(withIdentifier: "profileToAddItem", sender: nil)
             case "    Beğeni Listem":
@@ -78,7 +76,7 @@ class ProfileViewController: UIViewController {
             case "    Bildirimler":
                 UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
             case "    Bize Ulaşın":
-                print("bize ulaşın")
+                performSegue(withIdentifier: "profileToContact", sender: nil)
             case "   Çıkış Yap":
                 createLogOutAction(title: "Oturumu Kapat", message: "Çıkış yapmak istiyor musunuz?", view: self)
                 print("çıkışa basıldı")

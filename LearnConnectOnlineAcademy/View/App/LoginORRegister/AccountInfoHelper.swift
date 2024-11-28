@@ -22,10 +22,9 @@ class AccountInfoHelper{
         }
     }
     
-    func isPasswordSecure(sifre:String)->Bool{//regular expression temelli sifre kontrolü( özel karakter,8 karakter,bir büyük harf ve bir sayı)
+    func isPasswordSecure(sifre:String)->Bool{
         let password = NSPredicate(format: "SELF MATCHES %@ ", "^(?=.*[a-z])(?=.*[.,$@$#!%*?&])(?=.*[0-9])(?=.*[A-Z]).{8,}$")
         return password.evaluate(with: sifre)
-        
     }
     
     func setUserLabels(tempUser:User,userNameLabel:UILabel,userPhoneLabel:UILabel){

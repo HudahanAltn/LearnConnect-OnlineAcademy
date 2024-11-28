@@ -63,7 +63,7 @@ class LikedViewController: UIViewController {
 
 }
 
-
+//MARK: - LikedHelper
 extension LikedViewController{
     
     private func loadLikedFromFirebase(loggedUser:User?){//
@@ -160,13 +160,12 @@ extension LikedViewController:UITableViewDataSource{
         return cell
     }
 }
-
 //MARK: - EmptyData
 extension LikedViewController:EmptyDataSetSource,EmptyDataSetDelegate{
     
     func title(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
         
-        return NSAttributedString(string: "Beğenilen ürün bulunamadı!")
+        return NSAttributedString(string: "Beğenilen kurs bulunamadı!")
     }
     
     func image(forEmptyDataSet scrollView: UIScrollView) -> UIImage? {

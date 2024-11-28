@@ -11,6 +11,7 @@ class ReviewViewController: UIViewController {
     private struct Constants {
         static let starsCount: Int = 5
     }
+    
     @IBOutlet weak var courseImageView: UIImageView!
     @IBOutlet weak var courseNameLabel: UILabel!
     @IBOutlet weak var coursePoint: UILabel!
@@ -28,12 +29,13 @@ class ReviewViewController: UIViewController {
     private lazy var sendReviewButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .systemGreen
-        button.setTitle("Send", for: .normal)
+        button.setTitle("Değerlendirme Yap", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 20, weight: .medium)
         button.layer.cornerRadius = 8
         button.addTarget(self, action: #selector(sendReviewButtonPressed), for: .touchUpInside)
         return button
     }()
+    
     private lazy var starsContainer: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -202,8 +204,6 @@ extension ReviewViewController{
         
         if selectedRate != 0 && commentCheck{
             if Connectivity.isInternetAvailable(){
-                print("yorum puanı : \(selectedRate)")
-                print("yorum: \(commentTextView.text!)")
                 saveReviewToFirebase()
                 Alert.createAlertWithPop(title: "Başarılı", message: "Kurs değerlendirmesi eklendi.", view: self)
             }else{

@@ -17,6 +17,7 @@ enum FCollectionReference:String{//Firebase'de verilerimiz farklı tablolarda sa
     case Cart
     case Liked
     case Review
+    case OnSale
 }
 
 func FirebaseReference(_ collectionReference:FCollectionReference)->CollectionReference{//Tablo referanslarına erişim için yazılan fonksiyon.

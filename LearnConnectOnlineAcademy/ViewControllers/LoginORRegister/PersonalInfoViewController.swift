@@ -9,7 +9,6 @@ import UIKit
 
 class PersonalInfoViewController: UIViewController {
 
-    
     @IBOutlet weak var personalInfoProgressView: UIProgressView!
     @IBOutlet weak var userNameTextField: UITextField!
     @IBOutlet weak var userLastNameTextField: UITextField!
@@ -18,8 +17,6 @@ class PersonalInfoViewController: UIViewController {
     @IBOutlet weak var userDateOfBirthTextField: UITextField!
     @IBOutlet weak var userAdressTextField: UITextField!
     @IBOutlet weak var toAccountInfoButton: UIButton!
-    
-    
     
     var textFieldHelper = UITextFieldHelper()
     var birthDatePicker = UIDatePicker()
@@ -35,7 +32,7 @@ class PersonalInfoViewController: UIViewController {
     
     private let minimumTapInterval = CFTimeInterval(3)
     private var lastTapTime = CFAbsoluteTime(0)
-//MARK: - LifeCycles
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -60,8 +57,6 @@ class PersonalInfoViewController: UIViewController {
         super.viewWillDisappear(animated)
         tabBarController?.tabBar.isHidden = false
     }
-    
-//MARK: - Actions
   
     @IBAction func toAccountInfoButtonPressed(_ sender: Any) {
         
@@ -69,8 +64,7 @@ class PersonalInfoViewController: UIViewController {
         guard now >= lastTapTime + minimumTapInterval else { return }
         lastTapTime = now
         if Connectivity.isInternetAvailable(){
-            if nameCheck && lastNameCheck && citizienCheck && phoneCheck && birthCheck && adressCheck{//ilgili alanlar dolduruldu
-                //geçici kişi yarat
+            if nameCheck && lastNameCheck && citizienCheck && phoneCheck && birthCheck && adressCheck{
                 let user = User(email: nil,
                                 firstName: userNameTextField.text!,
                                 lastName: userLastNameTextField.text!,
@@ -80,7 +74,6 @@ class PersonalInfoViewController: UIViewController {
                                 profilePicture: nil,
                                 dateOfBirth: userDateOfBirthTextField.text!)
                
-                //bir sonraki sayfaya nesneyi aktar ve geçiş yap
                 let accountInfoVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "AccountInfoVC") as! AccountInfoViewController
                 accountInfoVC.user = user
                 navigationController?.pushViewController(accountInfoVC, animated: true)
@@ -92,30 +85,28 @@ class PersonalInfoViewController: UIViewController {
             Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
 
         }
-        
     }
-    
 }
 
 //MARK: - Helper Functions
 extension PersonalInfoViewController{
     
-    func setupProgress(progressView:UIProgressView){//uı setle
-        progressView.progress = 0 //progres view başlangıç 0
+    func setupProgress(progressView:UIProgressView){
+        progressView.progress = 0
         UIView.animate(withDuration: 2){
             progressView.setProgress(0.5, animated: true)
         }
     }
     private func setupUI(){
         toAccountInfoButton.layer.cornerRadius = 10
-        bindTextFieldDelegate(textfields: userNameTextField,userLastNameTextField,userCitizienTextField,userPhoneNumTextField,userDateOfBirthTextField,userAdressTextField)//delegate'leri bağla
+        bindTextFieldDelegate(textfields: userNameTextField,userLastNameTextField,userCitizienTextField,userPhoneNumTextField,userDateOfBirthTextField,userAdressTextField)
         setupProgress(progressView:personalInfoProgressView)
-        defaultConfigureTextFields()//textfield configure ayarlarını yapılandır
-        loadBirthPicker()//doğum günü picker'ı yükl
-        setupToolbar(toolbar: toolbar)//phone, citizienId ve dateofBirth için toolbar.
+        defaultConfigureTextFields()
+        loadBirthPicker()
+        setupToolbar(toolbar: toolbar)
     }
     
-    private func bindTextFieldDelegate(textfields:UITextField...){//textfield delegate'lerini bağla.
+    private func bindTextFieldDelegate(textfields:UITextField...){
         for textfield in textfields{
             textfield.delegate = self
         }

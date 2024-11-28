@@ -14,8 +14,6 @@ class CoursesTableViewCell: UITableViewCell {
     @IBOutlet weak var courseActivityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var courseNameLabel: UILabel!
     @IBOutlet weak var courseDealerLabel: UILabel!
-    @IBOutlet weak var courseProgressView: UIProgressView!
-    @IBOutlet weak var courseCompleteLabel: UILabel!
     
    
     
@@ -36,8 +34,6 @@ class CoursesTableViewCell: UITableViewCell {
         courseImageView.image = nil
         courseNameLabel.text = nil
         courseDealerLabel.text = nil
-        courseProgressView.progress = 0
-        courseCompleteLabel.text = nil
     }
 
     private func setCellUI(){

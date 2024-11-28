@@ -17,16 +17,11 @@ extension UIImageView{
     }
     
 }
-
-
 extension UIImage {
     func fixedOrientation() -> UIImage {
-        // Görüntünün zaten doğru oryantasyonda olup olmadığını kontrol et
         if self.imageOrientation == .up {
             return self
         }
-
-        // Görüntü oryantasyonunu düzeltmek için grafik bağlamı oluştur
         UIGraphicsBeginImageContextWithOptions(self.size, false, self.scale)
         defer { UIGraphicsEndImageContext() }
 

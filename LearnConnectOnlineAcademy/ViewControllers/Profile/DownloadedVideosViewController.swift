@@ -12,28 +12,10 @@ import AVFoundation
 import EmptyDataSet_Swift
 
 class DownloadedVideosViewController: UIViewController {
-
-    let lastPlaybackTimeKey = "LastPlaybackTime" // UserDefaults anahtarı
     
-        var lastPlaybackTime: CMTime? {
-            get {
-                // Saklanan zamanı UserDefaults'tan al ve CMTime'a dönüştür.
-                let seconds = UserDefaults.standard.double(forKey: lastPlaybackTimeKey)
-                return seconds > 0 ? CMTime(seconds: seconds, preferredTimescale: 1) : nil
-            }
-            set {
-                // CMTime'ı UserDefaults'ta sakla.
-                if let newValue = newValue {
-                    UserDefaults.standard.set(newValue.seconds, forKey: lastPlaybackTimeKey)
-                } else {
-                    UserDefaults.standard.removeObject(forKey: lastPlaybackTimeKey)
-                }
-            }
-        }
     @IBOutlet weak var downloadedVideoTableView: UITableView!
     
     let context = appDelegate.persistentContainer.viewContext
-
     var downloadedVideoList:[Video] = [Video]()
     
     override func viewDidLoad() {
@@ -56,11 +38,10 @@ class DownloadedVideosViewController: UIViewController {
             print("getirme hatası!")
         }
     }
-    @objc func playerDidFinishPlaying(notification: Notification) {
-           lastPlaybackTime = nil // Video sona erdiğinde oynatma zamanını sıfırla.
-    }
 
 }
+
+//MARK: -  UITableViewDelegate
 extension DownloadedVideosViewController: UITableViewDelegate{
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 120
@@ -73,22 +54,11 @@ extension DownloadedVideosViewController: UITableViewDelegate{
         print("didselectiçi : \(downloadedVideoList[indexPath.row].savedVideoURL!)")
 
         let player = AVPlayer(url: URL(string: downloadedVideoList[indexPath.row].savedVideoURL!)!)
-        if let lastTime = lastPlaybackTime {
-                    player.seek(to: lastTime, toleranceBefore: .zero, toleranceAfter: .zero)
-                }
         let avplayerVC = AVPlayerViewController()
         avplayerVC.player = player
-
         self.present(avplayerVC, animated: true){
             player.play()
         }
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying), name: .AVPlayerItemDidPlayToEndTime, object: player.currentItem)
-
-                player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 1, preferredTimescale: 1), queue: .main) { [weak self] currentTime in
-                    self?.lastPlaybackTime = currentTime // Her bir saniyede oynatma zamanını güncelle.
-                }
-        
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -102,6 +72,7 @@ extension DownloadedVideosViewController: UITableViewDelegate{
         return UISwipeActionsConfiguration(actions: [delete])
     }
 }
+//MARK: - UITableViewDataSource
 extension DownloadedVideosViewController: UITableViewDataSource{
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -119,7 +90,7 @@ extension DownloadedVideosViewController: UITableViewDataSource{
         return cell
     }
 }
-
+//MARK: - UITableViewEmpty
 extension DownloadedVideosViewController:EmptyDataSetSource,EmptyDataSetDelegate{
     
     func title(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {

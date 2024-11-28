@@ -17,7 +17,7 @@ class Liked{//kullanıcın beğendiği ürünlerin tutulacağı liste
     init(){
         
     }
-    
+
     init(_dictionary:NSDictionary){//dict dönüşüm.
         
         id = _dictionary[FirebaseConstants().kOBJECTID] as? String

@@ -16,17 +16,11 @@ class Category{
     init(_name:String){
         id = ""
         name = _name
-        print("categori yaratıldı normal")
     }
     
-    init(_dictionary:NSDictionary){//firebase için
+    init(_dictionary:NSDictionary){
         id = _dictionary[FirebaseConstants().kOBJECTID] as! String
         name = _dictionary[FirebaseConstants().kNAME] as! String
-        print("categori yaratıldı dict")
-
-    }
-    deinit{
-        print("category yok edildis")
     }
     
   

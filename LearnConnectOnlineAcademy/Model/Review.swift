@@ -19,10 +19,10 @@ class Review{
         
     }
     
-    init(_dictionary:NSDictionary){//dict dönüşüm.
+    init(_dictionary:NSDictionary){
         
         id = _dictionary[FirebaseConstants().kOBJECTID] as? String
-        ownerId = _dictionary[FirebaseConstants().kOWNERID] as? String
+        ownerId = _dictionary[FirebaseConstants().kEMAIL] as? String
         itemID = _dictionary[FirebaseConstants().kITEMID] as? String
         comment = _dictionary[FirebaseConstants().kCOMMENT] as? String
         point = _dictionary[FirebaseConstants().kPOINT] as? String

@@ -11,19 +11,19 @@ import UIKit
 
 class WelcomeHelper{
     
-    func setButtonCornerRadius(value:CGFloat,views:UIButton...){//butonların corner radius setleyen fonksiyon
+    func setButtonCornerRadius(value:CGFloat,views:UIButton...){
         for view in views{
             view.layer.cornerRadius = value
         }
     }
     
-    func setAlphaValue(value:CGFloat,views:UIView...){//viewların alpha değerlerini setleyen fonksiyon
+    func setAlphaValue(value:CGFloat,views:UIView...){
         for view in views{
             view.alpha = value
         }
     }
     
-    func runAppNameAnimation(label:UILabel,textName:String){//giriş yazı animasyon fonksiyonu
+    func runAppNameAnimation(label:UILabel,textName:String){
         label.alpha = 1
         label.text = ""
         var charIndex = 0.0
@@ -38,8 +38,7 @@ class WelcomeHelper{
             label.alpha = 0.1
         }
     }
-    
-    //welcomeVC giriş animasyonu
+
     func runIndroductionAnimation(loginButton:UIButton,passwordForgetButton:UIButton,emailTextField:UITextField,passwordTextField:UITextField,showPasswordButton:UIButton){
         
         UIView.animate(withDuration: 0.5){

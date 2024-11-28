@@ -53,7 +53,7 @@ class PaymentContractsViewController: UIViewController {
         
     }
     
-//sayfa full ama yarıya kadar açılıyor öyle düşün.
+//sayfa full ama yarıya kadar açılıyor
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         self.view.frame = CGRect(x: 0, y: UIScreen.main.bounds.height / 5 * 2, width: self.view.bounds.width, height: UIScreen.main.bounds.height / 5 * 3)

@@ -10,7 +10,9 @@ import Combine
 import PhotosUI
 
 class AddItemViewController: UIViewController {
-    
+
+    @IBOutlet weak var doneBarButton: UIBarButtonItem!
+    @IBOutlet weak var uploadFirebaseProgressView: UIProgressView!
     @IBOutlet weak var uploadActivityİndicator: UIActivityIndicatorView!
     @IBOutlet weak var itemNameTextField: UITextField!
     @IBOutlet weak var itemPriceTextField: UITextField!
@@ -26,7 +28,7 @@ class AddItemViewController: UIViewController {
     
     var catVM = CategoryViewModel()//kategori isimlerini alıyoruz
     var subcatVM = SubcategoryViewModel()//kategori ismine göre alt kategori getiriyoruz.
-    
+    var onSaleVM = OnSaleViewModel()
     private var cancellablecat:Set<AnyCancellable> = []
     private var cancellableSubcat:Set<AnyCancellable> = []
     
@@ -63,21 +65,18 @@ class AddItemViewController: UIViewController {
         super.viewDidLoad()
         
         setupUI()
-        catVM.downloadCategoriesFromFirebase()//kategori id'sini almak için çağırdık.
-        setUpCategoriesVMBinders()//kategori vm'için bind
-        setUpSubcategoriesVMBinders()//altkategori vm için bind
+        catVM.downloadCategoriesFromFirebase()
+        setUpCategoriesVMBinders()
+        setUpSubcategoriesVMBinders()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(self.videoUploadRemaining(notification:)), name:.uploadInfo, object: nil)
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard))
         let imageViewTapGesture = UITapGestureRecognizer(target: self, action: #selector(imageViewTapped))
         itemImageView.isUserInteractionEnabled = true
-
         itemImageView.addGestureRecognizer(imageViewTapGesture)
         view.addGestureRecognizer(tapGesture)
     }
-    
- 
-
- 
     
     //MARK: - Binders
     func setUpCategoriesVMBinders(){
@@ -85,7 +84,7 @@ class AddItemViewController: UIViewController {
             if  categories.count > 0 {
                 self?.categories = categories
             }
-        }.store(in: &cancellablecat) // store ile error un referansını cancellable set'inde tutarız
+        }.store(in: &cancellablecat)
     }
     
     func setUpSubcategoriesVMBinders(){
@@ -96,14 +95,13 @@ class AddItemViewController: UIViewController {
         }.store(in: &cancellableSubcat)
     }
     
-    
-    
     @IBAction func doneButtonPressed(_ sender: Any) {
         
         if Connectivity.isInternetAvailable(){
-            if fieldsAreCompleted() {//tf'ler dolu ise
-                if isPictureAdded() {//resim eklenmisse
-                    saveToFirebase()//firebase'e kayıt yap
+            if fieldsAreCompleted() {
+                if isPictureAdded() {
+                    
+                    saveToFirebase()
                 }else {
                     Alert.createAlert(title: "Hatırlatma", message: "Lütfen en az 1 resim ekleyiniz.", view: self)
                 }
@@ -115,7 +113,6 @@ class AddItemViewController: UIViewController {
         }
     }
     
-    
     @IBAction func galleryButtonPressed(_ sender: Any) {
         itemImage = nil
         itemImageView.image = UIImage(systemName: "photo.fill")
@@ -123,29 +120,25 @@ class AddItemViewController: UIViewController {
         imagePicker.delegate = self
         imagePicker.sourceType = .photoLibrary // Galeriyi açar
         present(imagePicker, animated: true, completion: nil)
-        
     }
-    
     
     @IBAction func addVideoButtonPressed(_ sender: Any) {
          
         var config = PHPickerConfiguration()
         config.filter = .videos
-        config.selectionLimit = 5
+        config.selectionLimit = 1
         let photoPicker = PHPickerViewController(configuration: config)
         photoPicker.delegate = self
         present(photoPicker,animated: true)
     }
     
 }
-
-
-
+//MARK: - AddItemHelper
 extension AddItemViewController{
     
     private func setupUI(){
         setupToolbar(toolbar: toolbar)
-        
+        addVideoButton.isEnabled = true
         videosTableView.delegate = self
         videosTableView.dataSource = self
         videosTableView.backgroundColor = .clear
@@ -159,7 +152,8 @@ extension AddItemViewController{
         itemImageView.tintColor = .label
         uploadActivityİndicator.alpha = 0.0
         uploadActivityİndicator.hidesWhenStopped = true
-        
+        uploadFirebaseProgressView.alpha = 0.0
+        doneBarButton.isEnabled = true
         addItemView.setAlphaValue(value: 0, views: itemSubcategoryTextField,descriptionTextView,addVideoButton,itemImageView,galleryButton,videosTableView,descriptionViewTextCountLabel)
         addItemView.setButtonCornerRadius(value: 10, views: addVideoButton,galleryButton)
         
@@ -177,7 +171,7 @@ extension AddItemViewController{
         addItemView.configureSubCategory(pickerview: subCategoryPickerView, textfield: itemSubcategoryTextField, view: self)
     }
     
-    private func bindTextFieldDelegate(textfields:UITextField...){//textfield delegate'lerini bağla.
+    private func bindTextFieldDelegate(textfields:UITextField...){
         for textfield in textfields{
             textfield.delegate = self
         }
@@ -226,6 +220,7 @@ extension AddItemViewController{
     }
     
     private func saveToFirebase(){
+        doneBarButton.isEnabled = false
         let item = Item() //ürün
         item.id = UUID().uuidString//ürüne unique id ata.
         item.name = itemNameTextField.text!
@@ -238,30 +233,28 @@ extension AddItemViewController{
         StorageManager().uploadImages(images: [itemImage], itemId: item.id){  imageLinkArray in
             item.imageLink = imageLinkArray[0]
         }
-        uploadActivityİndicator.alpha = 1
-        uploadActivityİndicator.startAnimating()
         
         StorageManager().uploadVideos(videoURLs: videoURLs, itemId: item.id){
             videoLinkArray in
             item.videoLinks = videoLinkArray
             
             self.itemVM.saveItemToFirestore(item)//itemi kayıt et.
-            self.itemVM.saveItemToAlgolia(item: item)//algolia'ya itemi kaydet
-            self.uploadActivityİndicator.stopAnimating()
-            Alert.createAlertWithPop(title: "Başarılı", message: "Ürün Eklendi", view: self)
-
+            self.itemVM.saveItemToAlgolia(item: item)
+            Alert.createAlertWithPop(title: "Tebrikler", message: "Kursunuz artık yayında!", view: self)
+            self.doneBarButton.isEnabled = true
         }
+        addOnSale(item: item)
     }
 }
-
-
 //MARK: - PHPickerController
 extension AddItemViewController:PHPickerViewControllerDelegate{
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         
         picker.dismiss(animated: true)
-        
+        uploadActivityİndicator.alpha = 1.0
+        addVideoButton.isEnabled = false
+        uploadActivityİndicator.startAnimating()
         guard let provider = results.first?.itemProvider else { return }
         if provider.hasItemConformingToTypeIdentifier(UTType.movie.identifier){
             
@@ -286,15 +279,16 @@ extension AddItemViewController:PHPickerViewControllerDelegate{
                     self.videoURLs.append(destinationURL)
                     print("dizideki : \(self.videoURLs[0])")
                     self.videoLinkForTableView.append(destinationURL.lastPathComponent)
-                    DispatchQueue.main.async {
+                    
+                    DispatchQueue.main.async{
                         self.videosTableView.reloadData()
+                        self.uploadActivityİndicator.stopAnimating()
+                        self.addVideoButton.isEnabled = true
+
                     }
                 } catch {
                     print("Error moving file: \(error)")
                 }
-              
-        
-            
             }
         }
     }
@@ -311,7 +305,6 @@ extension AddItemViewController:UIImagePickerControllerDelegate,UINavigationCont
             self.itemImage = fixedImage
             self.itemImageView.image = fixedImage
         }
-        
         picker.dismiss(animated: true, completion: nil)
     }
     
@@ -466,7 +459,7 @@ extension AddItemViewController:UITextFieldDelegate{
     }
     
 }
-//MARK: - UITableViewDatasource and Delegate
+//MARK: - UITableViewDelegate
 extension AddItemViewController: UITableViewDataSource{
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -484,6 +477,7 @@ extension AddItemViewController: UITableViewDataSource{
     
     
 }
+//MARK: - UITableViewDatasource
 extension AddItemViewController:UITableViewDelegate{
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return DeviceHelper.getSafeAreaSize()!.height/12
@@ -493,6 +487,19 @@ extension AddItemViewController:UITableViewDelegate{
 //MARK: - OBJC Functions
 extension AddItemViewController{
     
+    @objc func videoUploadRemaining(notification:Notification){
+        if let newData = notification.userInfo?["uploadRemainTime"] as? Float {
+            uploadFirebaseProgressView.alpha = 1.0
+            uploadFirebaseProgressView.setProgress(newData, animated:true)
+            if newData == 1.0{
+                uploadFirebaseProgressView.alpha = 0.0
+                uploadFirebaseProgressView.setProgress(0.0,animated: true)
+            }
+        }else{
+            print("hata")
+        }
+    }
+
     @objc func dismissKeyboard() {
         view.endEditing(true)
     }
@@ -511,5 +518,37 @@ extension AddItemViewController{
 
     }
     
+}
+//MARK: - AddOnSale
+extension AddItemViewController{
+    
+    private func addOnSale(item:Item){
+        let loggedUser = UserViewModel.currentUser()
+        
+        onSaleVM.downloadOnSaleFromFirestore(loggedUser!.email!)
+        { onSale in
+            
+            if onSale == nil{
+                self.onSaleVM.createNewOnSale(item: item, ownerId: loggedUser!.email!)
+            }else{
+                
+                onSale?.itemIds.append(item.id)
+                self.updateOnSale(onSale: onSale!, withValues: [FirebaseConstants().kITEMIDS:onSale!.itemIds])
+            }
+        }
+    }
+    
+    private func updateOnSale(onSale:OnSale,withValues:[String:Any]){
+        
+        onSaleVM.updateOnSaleInFirestore(onSale, withValues: withValues){ error in
+            
+            if error != nil{
+                print("hata ürün satışa çıkanlara eklenemedi")
+            }else{
+                print("başarılı ürün satışa çıkarılanlara eklendi")
+            }
+        }
+    }
+
 }
 

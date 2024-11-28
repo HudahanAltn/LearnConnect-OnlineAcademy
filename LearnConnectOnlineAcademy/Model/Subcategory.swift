@@ -19,16 +19,11 @@ class SubCategory{
         id = ""
         name = _name
         categoryId = _categoryId
-        print("alt kategori yaratıldı noral")
     }
     
     init(_dictionary:NSDictionary){
         id = _dictionary[FirebaseConstants().kOBJECTID] as! String
         categoryId = _dictionary[FirebaseConstants().kCATEGORYID] as? String
         name = _dictionary[FirebaseConstants().kNAME] as! String
-        print("alt kategori yartıldı dict")
-    }
-    deinit{
-        print("alt kategori yok edildi")
     }
 }

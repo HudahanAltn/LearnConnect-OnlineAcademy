@@ -9,8 +9,6 @@ import UIKit
 import PhotosUI
 
 class EditProfileViewController: UIViewController {
-
-    
     @IBOutlet weak var userProfilePictureImageView: UIImageView!
     @IBOutlet weak var editProfilePictureButton: UIButton!
     @IBOutlet weak var userNameTextField: UITextField!
@@ -20,10 +18,8 @@ class EditProfileViewController: UIViewController {
     @IBOutlet weak var userActivityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var saveChangesButton: UIButton!
     
-    
     var textFieldHelper = UITextFieldHelper()
-  
-    
+
     var nameCheck:Bool = false
     var lastNameCheck:Bool = false
     var phoneCheck:Bool = false
@@ -31,42 +27,35 @@ class EditProfileViewController: UIViewController {
     
     var toolbar = UIToolbar()
     
-    private let minimumTapInterval = CFTimeInterval(4)
-    private var lastTapTime = CFAbsoluteTime(0)
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
 
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         let imageViewTapGesture = UITapGestureRecognizer(target: self, action: #selector(imageViewTapped))
-                
-                // Gesture'ı imageView'a ekle
+
         userProfilePictureImageView.addGestureRecognizer(imageViewTapGesture)
         view.addGestureRecognizer(tapGesture)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
+        self.saveChangesButton.isEnabled = true
         showCurrentUserDataOnTextFields()
         
     }
 
     @IBAction func editProfilePictureButtonPressed(_ sender: Any) {
-        
         var config = PHPickerConfiguration(photoLibrary: .shared())
-        config.selectionLimit = 1//1 adet görüntü seçimi
-        config.filter = PHPickerFilter.images// sadece image istiyorum
-        
+        config.selectionLimit = 1
+        config.filter = PHPickerFilter.images
         let vc  = PHPickerViewController(configuration: config)
         vc.delegate = self
         self.present(vc,animated:true)
     }
     
     @IBAction func saveChangesButtonPressed(_ sender: Any) {
-        let now = CFAbsoluteTimeGetCurrent()
-        guard now >= lastTapTime + minimumTapInterval else { return }
-        lastTapTime = now
+        saveChangesButton.isEnabled = false
         if userProfilePictureImageView.image != UIImage(systemName: "person.circle"){//proile fotoğrafının koyulduğundan emin ol
             if nameCheck && lastNameCheck && phoneCheck && adressCheck{//alanları kontrol et
                 userActivityIndicator.startAnimating()
@@ -79,6 +68,7 @@ class EditProfileViewController: UIViewController {
                         print("resim silme başarısız")
                     }
                     self.userActivityIndicator.stopAnimating()
+                    self.saveChangesButton.isEnabled = true
                 }
             }else {
                 Alert.createAlert(title: "Hatırlatma", message: "Lütfen ilgili alanları kontrol ediniz.", view: self)
@@ -89,7 +79,6 @@ class EditProfileViewController: UIViewController {
     }
     
 }
-
 
 //MARK: - Update Profile
 extension EditProfileViewController{
@@ -191,7 +180,6 @@ extension EditProfileViewController{
     }
     
 }
-
 //MARK: - UITextfield Delegate
 extension EditProfileViewController:UITextFieldDelegate{
  
@@ -285,7 +273,6 @@ extension EditProfileViewController:UITextFieldDelegate{
     }
     
 }
-
 //MARK: PHPicker Delegate
 extension EditProfileViewController:PHPickerViewControllerDelegate{
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
@@ -304,8 +291,7 @@ extension EditProfileViewController:PHPickerViewControllerDelegate{
     }
     
 }
-
-//MARK: - OBJC Hepler
+//MARK: - OBJC
 extension EditProfileViewController{
     
     @objc func dismissKeyboard() {

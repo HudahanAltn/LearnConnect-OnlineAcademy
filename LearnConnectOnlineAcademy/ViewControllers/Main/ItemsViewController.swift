@@ -14,6 +14,7 @@ class ItemsViewController: UIViewController {
     
     var subcategory:SubCategory?
     var itemsVM = ItemViewModel()
+
     private var cancellableItems:Set<AnyCancellable> = []
     
     override func viewDidLoad() {
@@ -30,12 +31,6 @@ class ItemsViewController: UIViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "chevron.backward"), style: .plain, target: self, action: #selector(self.turnBackToPage))
         setUpBinders()
     }
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            itemsTableView.reloadData()
-        }
-    }
     override func viewWillAppear(_ animated: Bool) {
         if Connectivity.isInternetAvailable(){
             itemsVM.downloadItemsFromFirebase(withSubCategoryId: subcategory!.id)
@@ -45,7 +40,6 @@ class ItemsViewController: UIViewController {
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        //nesneleri bellekten temizle
         itemsVM.items.removeAll()
     }
     
@@ -64,7 +58,7 @@ class ItemsViewController: UIViewController {
         }.store(in: &cancellableItems)
     }
 }
-
+//MARK: - UITableViewDelegate
 extension ItemsViewController:UITableViewDelegate{
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return DeviceHelper.getSafeAreaSize()!.height/5
@@ -81,9 +75,9 @@ extension ItemsViewController:UITableViewDelegate{
     }
     
 }
-
+//MARK: - UITableViewDataSource
 extension ItemsViewController:UITableViewDataSource{
-    
+
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -101,15 +95,6 @@ extension ItemsViewController:UITableViewDataSource{
     }
     
 }
-
-extension ItemsViewController{
-    
-    @objc func turnBackToPage(){
-        self.navigationController?.popViewController(animated: true)
-    }
-}
-
-
 //MARK: - EmptyDataSetTableView
 extension ItemsViewController:EmptyDataSetSource,EmptyDataSetDelegate{
     
@@ -128,5 +113,10 @@ extension ItemsViewController:EmptyDataSetSource,EmptyDataSetDelegate{
     }
     
 }
-
-
+//MARK: - OBJC
+extension ItemsViewController{
+    
+    @objc func turnBackToPage(){
+        self.navigationController?.popViewController(animated: true)
+    }
+}

@@ -30,7 +30,6 @@ class UITextViewHelper {
             }
         }
         
-   
     func checkCharacterTypeInNameTextView(textView:UITextView,range:NSRange,string:String) -> Bool{
         let allowedCharacterSet = CharacterSet(charactersIn: "abcçdefgğhıijklmnoöpqrsştuüvwxyzABCÇDEFGĞHIİJKLMNOÖPQRSŞTUÜVWXYZ., 0123456789")
         if let text = textView.text,let textRange = Range(range, in: text) {

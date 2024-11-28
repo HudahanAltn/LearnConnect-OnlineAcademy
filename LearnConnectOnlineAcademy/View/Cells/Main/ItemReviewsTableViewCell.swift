@@ -39,13 +39,12 @@ class ItemReviewsTableViewCell: UITableViewCell {
         commentTextView.isEditable = false
         profileActivityIndicator.hidesWhenStopped = true
         cellLoadActivityIndicator.hidesWhenStopped = true
-        accessoryType = .disclosureIndicator
         let customSelectionColor = UIView()
         customSelectionColor.backgroundColor = .systemGreen
         self.selectedBackgroundView = customSelectionColor
     }
     
-    func createItemsCell(_ review:Review){
+    func createReviewCell(_ review:Review){
         
         profileActivityIndicator.startAnimating()
         cellLoadActivityIndicator.startAnimating()
@@ -61,6 +60,8 @@ class ItemReviewsTableViewCell: UITableViewCell {
                 DispatchQueue.main.async {
                     self.profileImageView.image = image
                     self.profileActivityIndicator.stopAnimating()
+                    self.cellLoadActivityIndicator.stopAnimating()
+
                 }
                 
             }

@@ -21,7 +21,6 @@ class CartViewController: UIViewController {
     var allItemsInCart:[Item] = []//Sepetteki ürünleri tutan liste
     var purchasedItemIds:[String] = []//satın alınacak ürünlerin id'lerini tutan liste
 
-    
     var isDeliveryVCOpen:Bool = false
     var isUserPurchasedCourse:Bool = false
     
@@ -35,13 +34,7 @@ class CartViewController: UIViewController {
         cartTableView.dataSource = self
         cartTableView.emptyDataSetSource = self
         cartTableView.emptyDataSetDelegate = self
-        cartTableView.backgroundColor = .clear
-        cartTableView.separatorStyle = .none
-        checkOutButton.layer.cornerRadius = 10
-        priceButton.setImage(UIImage(systemName: "chevron.up"), for: .normal)
-        priceButton.layer.borderColor = UIColor.systemGreen.cgColor
-        priceButton.layer.borderWidth = 0.5
-        priceButton.layer.cornerRadius = 10
+        setupUI()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -52,8 +45,6 @@ class CartViewController: UIViewController {
         checkLoginStatusForCartVC()
         isDeliveryVCOpen = false
     }
-    
-    
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
@@ -82,13 +73,13 @@ class CartViewController: UIViewController {
     
     @IBAction func checkOutButtonPressed(_ sender: Any) {
         if Connectivity.isInternetAvailable(){
-            if cart?.itemIds.count == 0{
+            print("cart: \(cart?.itemIds.count)")
+            
+            if cart?.itemIds!.count == 0 || cart == nil {
                 Alert.createAlert(title: "Bilgilendirme", message: "Öncelikle Sepetinize Ürün Ekleyin", view: self)
-
             }else{
                 performSegue(withIdentifier: "cartToPayment", sender: priceButton.titleLabel?.text)
             }
-
         }else{
             Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
 
@@ -96,8 +87,18 @@ class CartViewController: UIViewController {
     }
 }
 
-//MARK: - CartVC Helper
+//MARK: - CartVC Login/LogOut
 extension CartViewController{
+    
+    private func setupUI(){
+        cartTableView.backgroundColor = .clear
+        cartTableView.separatorStyle = .none
+        checkOutButton.layer.cornerRadius = 10
+        priceButton.setImage(UIImage(systemName: "chevron.up"), for: .normal)
+        priceButton.layer.borderColor = UIColor.systemGreen.cgColor
+        priceButton.layer.borderWidth = 0.5
+        priceButton.layer.cornerRadius = 10
+    }
     
     private func checkLoginStatusForCartVC(){//kullanıcın oturum açma durumunu kontrol et
         let loggedUser = UserViewModel.currentUser()
@@ -111,8 +112,10 @@ extension CartViewController{
         }else {//oturum açan kullanıcı var.
             if Connectivity.isInternetAvailable(){ //sepeti görüntülemek için internete bağlan
                 if isUserPurchasedCourse{// kullanıcı payment ile ödeme yapmış ise
+                    isUserPurchasedCourse = false
+                    NotificationCenter.default.removeObserver(self, name: .notificaitonName, object: nil)
                     let price = priceButton.titleLabel?.text
-                    Alert.createAlert(title: "Başarılı", message: "Alındı", view: self)
+                    Alert.createAlert(title: "Başarılı", message: "Kurs başarıyla satın alındı!", view: self)
                     addItemToPurchasedListFromCart()//sepetteki ürünleri satın alınanlar listesine ekle
                     addItemsToPurchasedList(self.purchasedItemIds)//sepettekileri kullanıcın satın alınanlarına ekle
                     emptyCart()//sepeti ve satın alınanlar listesini boşalt
@@ -142,8 +145,8 @@ extension CartViewController{
     }
     
     
-    private func updateTotalLabels(_ isEmpty:Bool){// label güncelle
-        if isEmpty {//sepet boş
+    private func updateTotalLabels(_ isEmpty:Bool){
+        if isEmpty {
             self.navigationItem.title = "Sepetim (0 Ürün)"
            
         }else {
@@ -152,26 +155,24 @@ extension CartViewController{
             priceButton.setTitle(returnCartTotalPrice(), for: .normal)
             
         }
-
     }
     
     private func returnCartTotalPrice()->String{// price güncelle
         var totalPrice = 0.0
-        for item in allItemsInCart {//sepetteki ürünleri dolaş
-            totalPrice += item.price//toplam tutar hesapla
+        for item in allItemsInCart {
+            totalPrice += item.price
         }
         return LocalCurrency().convertCurrency(totalPrice)
     }
 
 }
-
 //MARK: - UITableViewDelegate
 extension CartViewController:UITableViewDelegate{
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 120
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {//itemVC'ye geçiş yap
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         tableView.deselectRow(at: indexPath, animated: true)
         let itemVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "itemVC") as! ItemViewController
@@ -184,9 +185,9 @@ extension CartViewController:UITableViewDelegate{
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let delete = UIContextualAction(style: .destructive, title: "Sil"){ _,_,_ in
 
-            let deletedItem = self.allItemsInCart.remove(at: indexPath.row)//data source'dan seçili itemi'i sil
-            tableView.reloadData()//reload
-            self.removeItemFromCart(itemId: deletedItem.id)//sepetten kaldır
+            let deletedItem = self.allItemsInCart.remove(at: indexPath.row)
+            tableView.reloadData()
+            self.removeItemFromCart(itemId: deletedItem.id)
             self.cartVM.updateCartInFirestore(self.cart!, withValues: [FirebaseConstants().kITEMIDS:self.cart!.itemIds]){ error in
                 if error != nil {
                     print("günc hatası")
@@ -215,7 +216,6 @@ extension CartViewController:UITableViewDataSource{
         return cartCell
     }
 }
-
 //MARK: - LoadCart From Backend
 extension CartViewController{
     
@@ -239,7 +239,7 @@ extension CartViewController{
         }
     }
 }
-
+//MARK: - CartHelper
 extension CartViewController{
     private func addItemToPurchasedListFromCart(){
         for item in allItemsInCart{
@@ -281,7 +281,6 @@ extension CartViewController{
         }
     }
 }
-
 //MARK: - OBJC
 extension CartViewController{
    
@@ -293,8 +292,10 @@ extension CartViewController{
        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
        
        if Connectivity.isInternetAvailable(){
-           if cart?.itemIds.count != 0 {
-               let alertController = UIAlertController(title: "Uyarı", message: "Sepetinizdeki tüm ürünler silinecektir!", preferredStyle: .alert)
+           if cart?.itemIds!.count == 0 || cart == nil {
+               Alert.createAlert(title: "Bilgilendirme", message: "Sepette zaten mevcut kurs yok!", view: self)
+           }else{
+               let alertController = UIAlertController(title: "Uyarı", message: "Sepetinizdeki tüm kurslar silinecektir!", preferredStyle: .alert)
                
                let OKButton = UIAlertAction(title: "Sil", style: .destructive){ _ in
                    self.allItemsInCart.removeAll()//data source'dan seçili itemi'i sil
@@ -309,27 +310,23 @@ extension CartViewController{
                }
                
                let cancelButton = UIAlertAction(title: "İptal", style: .cancel)
-               
                alertController.addAction(OKButton)
                alertController.addAction(cancelButton)
-               
+
                self.present(alertController, animated: true)
-           }else{
-               
-               Alert.createAlert(title: "Hata", message: "Sepette zaten mevcut ürün yok!", view: self)
            }
        }else{
            Alert.createAlert(title: Alert.noConnectionTitle, message: Alert.noConnectionMessage, view: self)
        }
    }
 }
-
+//MARK: - UITableViewEmpty
 extension CartViewController:EmptyDataSetSource,EmptyDataSetDelegate{
     
     func title(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
         
         if Connectivity.isInternetAvailable(){
-            return NSAttributedString(string: "Sepette ürün bulunamadı!")
+            return NSAttributedString(string: "Sepette kurs bulunamadı!")
         }else{
             return NSAttributedString(string: "İnternet bağlantısı mevcut değil!")
         }
@@ -350,7 +347,7 @@ extension CartViewController:EmptyDataSetSource,EmptyDataSetDelegate{
     func description(forEmptyDataSet scrollView: UIScrollView) -> NSAttributedString? {
         if UserViewModel.currentUser() != nil{
             if Connectivity.isInternetAvailable(){
-                return NSAttributedString(string: "Sepetenize ürün ekleyiniz.")
+                return NSAttributedString(string: "Sepetenize kurs ekleyiniz.")
             }else{
                 return NSAttributedString(string: "Sepeti görüntülemek için internet bağlantısı gerekmektedir!")
             }
