@@ -16,7 +16,7 @@ class Cart{
     init(){
     }
     
-    init(_dictionary:NSDictionary)
+    init(_dictionary:NSDictionary){
         
         id = _dictionary[FirebaseConstants().kOBJECTID] as? String
         ownerId = _dictionary[FirebaseConstants().kOWNERID] as? String
