@@ -16,11 +16,6 @@ xcuserdata/
 ## Playgrounds
 timeline.xctimeline
 playground.xcworkspace
-Info.plist
-AlgoliaConstants.swift
-AlgoliaServices.swift
-AlgoliaItem.swift
-GoogleService-Info.plist
 # Swift Package Manager
 #
 # Add this line if you want to avoid checking in source code from Swift Package Manager dependencies.
